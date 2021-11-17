@@ -1,4 +1,5 @@
-use crate::metaculus::Metaculus;
+use crate::metaculus::*;
+use chrono::{TimeZone, Utc};
 use env_logger;
 use log::LevelFilter;
 mod metaculus;
@@ -31,5 +32,19 @@ fn retrieve_xrisk_questions() {
     println!(
         "Metaculus community estimates a total existential risk of {}%.",
         x_total * 100.0
-    )
+    );
+
+    let human_lifespan = 350000.0;
+    let years_until_resolution =
+        (Utc.ymd(2100, 1, 1) - Utc::today()).num_seconds() as f64 / (365.25 * 86400.0);
+
+    let real_years_until_end = years_until_resolution / (1.0 / (1.0 - x_total)).ln();
+
+    let clock_seconds_until_end =
+        real_years_until_end / (real_years_until_end + human_lifespan) * 86400.0;
+    let minutes = (clock_seconds_until_end / 60.0).floor();
+    let seconds = clock_seconds_until_end - minutes * 60.0;
+
+    let time_until_end = format!("{:02}:{:05.2}", minutes, seconds);
+    println!("[Bot Tweet] The Doomsday clock is currently at {} until midnight, from a Metaculus community median prediction of a {}% chance of extinction this century (https://www.metaculus.com/questions/2568/ragnar%25C3%25B6k-seriesresults-so-far/).", time_until_end, x_total*100.0)
 }
