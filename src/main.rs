@@ -1,7 +1,6 @@
+use crate::metaculus::Metaculus;
 use env_logger;
 use log::LevelFilter;
-use crate::metaculus::Metaculus;
-
 mod metaculus;
 
 fn main() {
