@@ -3,14 +3,14 @@ use reqwest;
 use serde::{Deserialize, Serialize};
 use serde_json;
 
-pub struct Metaculus {
-    domain: String,
+pub struct Metaculus<'a> {
+    domain: &'a str,
 }
 
-impl Metaculus {
-    pub fn new() -> Metaculus {
+impl Metaculus<'_> {
+    pub fn new() -> Metaculus<'static> {
         Metaculus {
-            domain: "www".to_string(),
+            domain: "www",
         }
     }
 
@@ -24,7 +24,7 @@ impl Metaculus {
             self.domain, id
         );
         let response = reqwest::blocking::get(url).ok()?.text().ok()?;
-
+        println!("{}", response);
         let question_response = serde_json::from_str(&response).ok()?;
         info!("Question id {} retrieved successfully.", id);
         return Some(question_response);
@@ -34,26 +34,25 @@ impl Metaculus {
 #[derive(Serialize, Deserialize)]
 pub struct Question {
     pub title_short: String,
-    prediction_timeseries: Vec<PredictionPoint>,
+    prediction_timeseries: Option<Vec<PredictionTimeseriesPoint>>,
     metaculus_prediction: Option<MetaculusPrediction>,
     resolution: Option<f64>,
 }
 
 impl Question {
     pub fn get_best_prediction(&self) -> Option<f64> {
-        let best_prediction = match self.get_resolution() {
+        return match self.get_resolution() {
             None => match self.get_metaculus_prediction() {
                 None => self.get_community_prediction(),
                 mp => mp,
             },
             r => r,
         };
-        best_prediction
     }
 
     pub fn get_community_prediction(&self) -> Option<f64> {
         Some(
-            self.prediction_timeseries
+            self.prediction_timeseries.as_ref()?
                 .last()
                 .unwrap()
                 .community_prediction,
@@ -70,7 +69,7 @@ impl Question {
 }
 
 #[derive(Serialize, Deserialize)]
-struct PredictionPoint {
+struct PredictionTimeseriesPoint {
     community_prediction: f64,
 }
 

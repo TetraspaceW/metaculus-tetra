@@ -1,0 +1,56 @@
+{
+  "url": "https://www.metaculus.com/api2/questions/956/",
+  "page_url": "/questions/956/discussion-topic-what-are-some-suggestions-for-questions-to-launch/",
+  "id": 956,
+  "author": 8,
+  "author_name": "Anthony",
+  "title": "Discussion topic: what are some suggestions for questions to launch?",
+  "title_short": "Discussion topic: what are some suggesti",
+  "resolution": null,
+  "created_time": "2018-06-05T15:31:05.325969Z",
+  "publish_time": "2018-06-05T15:31:05.321703Z",
+  "close_time": "9999-01-01T00:00:00Z",
+  "resolve_time": "9999-01-01T00:00:00Z",
+  "possibilities": {
+    "type": "discussion"
+  },
+  "scoring": {},
+  "type": "discussion",
+  "can_use_powers": true,
+  "user_perms": 294941,
+  "last_activity_time": "2021-11-17T08:20:39.703511Z",
+  "activity": 6.823678824118378,
+  "comment_count": 1713,
+  "votes": 80,
+  "community_prediction": {
+    "full": null,
+    "history": [],
+    "unweighted": null
+  },
+  "number_of_predictions": 0,
+  "related_questions": [],
+  "anon_prediction_count": 0,
+  "projects": [
+    {
+      "id": 144,
+      "name": "Metaculus",
+      "subtitle": "",
+      "description": "",
+      "type": "MP",
+      "site_id": 1,
+      "user_perms": 2,
+      "question_user_perms": 294941,
+      "sign_up_fields": {},
+      "tournament_close_date": null,
+      "prize_pool": 0.0,
+      "url": "/project/144/",
+      "config": {}
+    }
+  ],
+  "description_html": "<p>Since an enhanced collaborative question-writing system is still in the works, as a temporary fix feel free to enter very rough/short questions as comments in this discussion.  If people vote with smileys on their interests, we can fast-track the happiest questions for further development.</p>",
+  "user_predictions": null,
+  "categories": [
+    "metaculus"
+  ],
+  "status": "A"
+}

@@ -1,12 +1,13 @@
-use crate::metaculus::*;
 use chrono::{TimeZone, Utc};
 use env_logger;
 use log::LevelFilter;
-mod metaculus;
+use metaculustetra::*;
 
 fn main() {
     setup_logger();
-    retrieve_xrisk_questions();
+
+    let m = Metaculus::new();
+    retrieve_xrisk_questions(m);
 }
 
 fn setup_logger() {
@@ -15,9 +16,7 @@ fn setup_logger() {
         .init();
 }
 
-fn retrieve_xrisk_questions() {
-    let m = Metaculus::new();
-
+fn retrieve_xrisk_questions(m: Metaculus) {
     let catastrophe_question_ids = vec!["1500", "1494", "1495", "1502", "1501"].into_iter();
     let existential_question_ids = vec!["1604", "1585", "2513", "2514", "7795"].into_iter();
 
