@@ -25,11 +25,11 @@ fn retrieve_xrisk_questions(m: Metaculus) {
     let catastrophe_question_ids = vec!["1500", "1494", "1495", "1502", "1501"].into_iter();
     let existential_question_ids = vec!["1604", "1585", "2513", "2514", "7795"].into_iter();
 
-    let cat_overall = m.get_prediction_for("1493").unwrap();
+    let cat_overall = m.get_numeric_prediction_for("1493").unwrap();
 
     let x_total: f64 = catastrophe_question_ids
-        .map(|id| m.get_prediction_for(id).unwrap() * cat_overall)
-        .zip(existential_question_ids.map(|id| m.get_prediction_for(id).unwrap()))
+        .map(|id| m.get_numeric_prediction_for(id).unwrap() * cat_overall)
+        .zip(existential_question_ids.map(|id| m.get_numeric_prediction_for(id).unwrap()))
         .map(|p| p.0 * p.1)
         .sum();
 

@@ -1,3 +1,4 @@
+use crate::Prediction::{AmbP, NumP};
 use log::info;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
@@ -16,7 +17,14 @@ impl Metaculus<'_> {
         }
     }
 
-    pub fn get_prediction_for(&self, id: &str) -> Option<f64> {
+    pub fn get_numeric_prediction_for(&self, id: &str) -> Option<f64> {
+        match self.get_prediction_for(id)? {
+            NumP(p) => Some(p),
+            _ => None,
+        }
+    }
+
+    pub fn get_prediction_for(&self, id: &str) -> Option<Prediction> {
         self.get_question(id)?.get_best_prediction()
     }
 
@@ -42,7 +50,7 @@ pub struct Question {
 }
 
 impl Question {
-    pub fn get_best_prediction(&self) -> Option<f64> {
+    pub fn get_best_prediction(&self) -> Option<Prediction> {
         return match self.get_resolution() {
             None => match self.get_metaculus_prediction() {
                 None => self.get_community_prediction(),
@@ -52,7 +60,7 @@ impl Question {
         };
     }
 
-    pub fn get_community_prediction(&self) -> Option<f64> {
+    pub fn get_community_prediction(&self) -> Option<Prediction> {
         let community_prediction = match self.prediction_timeseries.as_ref()?.last()? {
             PredictionTimeseriesPoint::NumericPTP {
                 community_prediction,
@@ -62,10 +70,10 @@ impl Question {
             } => self.convert_range_prediction(community_prediction.q2)?,
         };
 
-        Some(community_prediction)
+        Some(NumP(community_prediction))
     }
 
-    pub fn get_metaculus_prediction(&self) -> Option<f64> {
+    pub fn get_metaculus_prediction(&self) -> Option<Prediction> {
         let metaculus_prediction = match self.metaculus_prediction.as_ref()? {
             MetaculusPredictionTimeseriesPoint::NumericMPTP { full } => *full,
             MetaculusPredictionTimeseriesPoint::RangeMPTP { full } => {
@@ -73,7 +81,7 @@ impl Question {
             }
         };
 
-        Some(metaculus_prediction)
+        Some(NumP(metaculus_prediction))
     }
 
     fn convert_range_prediction(&self, prediction: f64) -> Option<f64> {
@@ -84,13 +92,21 @@ impl Question {
         Some(prediction * (max - min) + min)
     }
 
-    pub fn get_resolution(&self) -> Option<f64> {
-        return if self.possibilities.question_type == "continuous" {
-            Some(self.convert_range_prediction(self.resolution?)?)
+    pub fn get_resolution(&self) -> Option<Prediction> {
+        return if self.resolution? == -1.0 {
+            Some(AmbP)
+        } else if self.possibilities.question_type == "continuous" {
+            Some(NumP(self.convert_range_prediction(self.resolution?)?))
         } else {
-            Some(self.resolution?)
+            Some(NumP(self.resolution?))
         };
     }
+}
+
+#[derive(PartialEq, Debug)]
+pub enum Prediction {
+    AmbP,
+    NumP(f64),
 }
 
 #[derive(Serialize, Deserialize)]
