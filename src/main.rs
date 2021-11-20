@@ -1,11 +1,12 @@
-mod ignign_send_tweet;
-
 use chrono::{TimeZone, Utc};
 use env_logger;
 use log::{info, LevelFilter};
+
 use metaculustetra::*;
-use egg_mode;
+
 use crate::ignign_send_tweet::send_tweet;
+
+mod ignign_send_tweet;
 
 fn main() {
     setup_logger();

@@ -1,16 +1,18 @@
 use log::info;
-use reqwest;
+use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use serde_json;
 
 pub struct Metaculus<'a> {
     domain: &'a str,
+    client: Client,
 }
 
 impl Metaculus<'_> {
     pub fn new() -> Metaculus<'static> {
         Metaculus {
             domain: "www",
+            client: Client::new(),
         }
     }
 
@@ -23,7 +25,7 @@ impl Metaculus<'_> {
             "https://{}.metaculus.com/api2/questions/{}",
             self.domain, id
         );
-        let response = reqwest::blocking::get(url).ok()?.text().ok()?;
+        let response = self.client.get(url).send().ok()?.text().ok()?;
         let question_response = serde_json::from_str(&response).ok()?;
         info!("Question id {} retrieved successfully.", id);
         return Some(question_response);
@@ -51,7 +53,8 @@ impl Question {
 
     pub fn get_community_prediction(&self) -> Option<f64> {
         Some(
-            self.prediction_timeseries.as_ref()?
+            self.prediction_timeseries
+                .as_ref()?
                 .last()
                 .unwrap()
                 .community_prediction,

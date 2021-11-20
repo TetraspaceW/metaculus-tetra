@@ -13,7 +13,10 @@ fn read_file(filename: &str) -> Question {
 fn test_resolved_probability_question() {
     let question = read_file("resolved_probability_example");
 
-    assert_eq!(question.title_short, "Infrastructure package passed in 2021");
+    assert_eq!(
+        question.title_short,
+        "Infrastructure package passed in 2021"
+    );
     assert_eq!(question.get_resolution(), Some(1.0));
     assert_eq!(question.get_community_prediction(), Some(0.99));
     assert_eq!(question.get_metaculus_prediction(), Some(0.986684322309624));
@@ -24,7 +27,10 @@ fn test_resolved_probability_question() {
 fn test_unresolved_probability_question() {
     let question = read_file("probability_example");
 
-    assert_eq!(question.title_short, "Global population to fall by >10% by 2100?");
+    assert_eq!(
+        question.title_short,
+        "Global population to fall by >10% by 2100?"
+    );
     assert_eq!(question.get_resolution(), None);
     assert_eq!(question.get_community_prediction(), Some(0.2));
     assert_eq!(question.get_metaculus_prediction(), None);
