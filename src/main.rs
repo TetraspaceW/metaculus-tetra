@@ -1,7 +1,11 @@
+mod ignign_send_tweet;
+
 use chrono::{TimeZone, Utc};
 use env_logger;
-use log::LevelFilter;
+use log::{info, LevelFilter};
 use metaculustetra::*;
+use egg_mode;
+use crate::ignign_send_tweet::send_tweet;
 
 fn main() {
     setup_logger();
@@ -28,11 +32,6 @@ fn retrieve_xrisk_questions(m: Metaculus) {
         .map(|p| p.0 * p.1)
         .sum();
 
-    println!(
-        "Metaculus community estimates a total existential risk of {}%.",
-        x_total * 100.0
-    );
-
     let human_lifespan = 350000.0;
     let years_until_resolution =
         (Utc.ymd(2100, 1, 1) - Utc::today()).num_seconds() as f64 / (365.25 * 86400.0);
@@ -45,5 +44,9 @@ fn retrieve_xrisk_questions(m: Metaculus) {
     let seconds = clock_seconds_until_end - minutes * 60.0;
 
     let time_until_end = format!("{:02}:{:05.2}", minutes, seconds);
-    println!("[Bot Tweet] The Doomsday clock is currently at {} until midnight, from a Metaculus community median prediction of a {}% chance of extinction this century (https://www.metaculus.com/questions/2568/ragnar%25C3%25B6k-seriesresults-so-far/).", time_until_end, x_total*100.0)
+    let tweet_text = format!("[Bot Tweet] The Doomsday clock is currently at {} until midnight, from a Metaculus community median prediction of a {}% chance of extinction this century (https://www.metaculus.com/questions/2568/ragnar%25C3%25B6k-seriesresults-so-far/).", time_until_end, x_total*100.0);
+
+    info!("Sending tweet with text {}", tweet_text);
+
+    send_tweet(tweet_text);
 }

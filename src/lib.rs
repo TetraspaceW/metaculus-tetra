@@ -24,7 +24,6 @@ impl Metaculus<'_> {
             self.domain, id
         );
         let response = reqwest::blocking::get(url).ok()?.text().ok()?;
-        println!("{}", response);
         let question_response = serde_json::from_str(&response).ok()?;
         info!("Question id {} retrieved successfully.", id);
         return Some(question_response);
