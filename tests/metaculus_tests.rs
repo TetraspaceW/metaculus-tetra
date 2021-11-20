@@ -45,6 +45,7 @@ fn test_resolved_range_question() {
 #[test]
 fn test_range_question() {
     let question = read_file("range_example");
+    assert_eq!(question.get_community_prediction(), Some(0.1132));
 }
 
 #[test]

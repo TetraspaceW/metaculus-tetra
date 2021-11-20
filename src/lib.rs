@@ -52,17 +52,25 @@ impl Question {
     }
 
     pub fn get_community_prediction(&self) -> Option<f64> {
-        Some(
-            self.prediction_timeseries
-                .as_ref()?
-                .last()
-                .unwrap()
-                .community_prediction,
-        )
+        let community_prediction = match self.prediction_timeseries.as_ref()?.last()? {
+            PredictionTimeseriesPoint::NumericPTP {
+                community_prediction,
+            } => *community_prediction,
+            PredictionTimeseriesPoint::RangePTP {
+                community_prediction,
+            } => community_prediction.q2,
+        };
+
+        Some(community_prediction)
     }
 
     pub fn get_metaculus_prediction(&self) -> Option<f64> {
-        Some(self.metaculus_prediction.as_ref()?.full)
+        let metaculus_prediction = match self.metaculus_prediction.as_ref()? {
+            MetaculusPrediction::NumericMP { full } => *full,
+            MetaculusPrediction::RangeMP { full } => full.q2,
+        };
+
+        Some(metaculus_prediction)
     }
 
     pub fn get_resolution(&self) -> Option<f64> {
@@ -71,11 +79,29 @@ impl Question {
 }
 
 #[derive(Serialize, Deserialize)]
-struct PredictionTimeseriesPoint {
-    community_prediction: f64,
+#[serde(untagged)]
+enum PredictionTimeseriesPoint {
+    NumericPTP {
+        community_prediction: f64,
+    },
+    RangePTP {
+        community_prediction: RangeCommunityPrediction,
+    },
 }
 
 #[derive(Serialize, Deserialize)]
-struct MetaculusPrediction {
-    full: f64,
+struct RangeCommunityPrediction {
+    q2: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(untagged)]
+enum MetaculusPrediction {
+    NumericMP { full: f64 },
+    RangeMP { full: RangeMetaculusPrediction },
+}
+
+#[derive(Serialize, Deserialize)]
+struct RangeMetaculusPrediction {
+    q2: f64,
 }
