@@ -40,12 +40,19 @@ fn test_unresolved_probability_question() {
 #[test]
 fn test_resolved_range_question() {
     let question = read_file("resolved_range_example");
+    assert_eq!(question.get_resolution(), Some(0.44 * (30.0 - -20.0) + -20.0));
+    assert_eq!(question.get_metaculus_prediction(), Some(0.49315 * (30.0 - -20.0) + -20.0));
+    assert_eq!(question.get_community_prediction(), Some(0.49337 * (30.0 - -20.0) + -20.0));
+    assert_eq!(question.get_best_prediction(), Some(0.44 * (30.0 - -20.0) + -20.0));
 }
 
 #[test]
 fn test_range_question() {
     let question = read_file("range_example");
     assert_eq!(question.get_community_prediction(), Some(0.1132));
+    assert_eq!(question.get_best_prediction(), Some(0.1132));
+    assert_eq!(question.get_metaculus_prediction(), None);
+    assert_eq!(question.get_resolution(), None);
 }
 
 #[test]

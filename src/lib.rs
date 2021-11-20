@@ -36,8 +36,9 @@ impl Metaculus<'_> {
 pub struct Question {
     pub title_short: String,
     prediction_timeseries: Option<Vec<PredictionTimeseriesPoint>>,
-    metaculus_prediction: Option<MetaculusPrediction>,
+    metaculus_prediction: Option<MetaculusPredictionTimeseriesPoint>,
     resolution: Option<f64>,
+    possibilities: QuestionPossibilities,
 }
 
 impl Question {
@@ -58,7 +59,7 @@ impl Question {
             } => *community_prediction,
             PredictionTimeseriesPoint::RangePTP {
                 community_prediction,
-            } => community_prediction.q2,
+            } => self.convert_range_prediction(community_prediction.q2)?,
         };
 
         Some(community_prediction)
@@ -66,15 +67,29 @@ impl Question {
 
     pub fn get_metaculus_prediction(&self) -> Option<f64> {
         let metaculus_prediction = match self.metaculus_prediction.as_ref()? {
-            MetaculusPrediction::NumericMP { full } => *full,
-            MetaculusPrediction::RangeMP { full } => full.q2,
+            MetaculusPredictionTimeseriesPoint::NumericMPTP { full } => *full,
+            MetaculusPredictionTimeseriesPoint::RangeMPTP { full } => {
+                self.convert_range_prediction(full.q2)?
+            }
         };
 
         Some(metaculus_prediction)
     }
 
+    fn convert_range_prediction(&self, prediction: f64) -> Option<f64> {
+        let scale = self.possibilities.scale.as_ref()?;
+        let min = scale.min;
+        let max = scale.max;
+
+        Some(prediction * (max - min) + min)
+    }
+
     pub fn get_resolution(&self) -> Option<f64> {
-        Some(self.resolution?)
+        return if self.possibilities.question_type == "continuous" {
+            Some(self.convert_range_prediction(self.resolution?)?)
+        } else {
+            Some(self.resolution?)
+        };
     }
 }
 
@@ -96,12 +111,25 @@ struct RangeCommunityPrediction {
 
 #[derive(Serialize, Deserialize)]
 #[serde(untagged)]
-enum MetaculusPrediction {
-    NumericMP { full: f64 },
-    RangeMP { full: RangeMetaculusPrediction },
+enum MetaculusPredictionTimeseriesPoint {
+    NumericMPTP { full: f64 },
+    RangeMPTP { full: RangeMetaculusPrediction },
 }
 
 #[derive(Serialize, Deserialize)]
 struct RangeMetaculusPrediction {
     q2: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+struct QuestionPossibilities {
+    #[serde(rename = "type")]
+    question_type: String,
+    scale: Option<RangeQuestionScale>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct RangeQuestionScale {
+    min: f64,
+    max: f64,
 }
