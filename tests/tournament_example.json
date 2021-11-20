@@ -1,0 +1,1209 @@
+{
+  "url": "https://www.metaculus.com/api2/questions/8541/",
+  "page_url": "/questions/8541/iran-nuclear-deal-by-2024/",
+  "id": 8541,
+  "author": 119426,
+  "author_name": "havlickova.blanka",
+  "title": "Will the US rejoin the Iran Nuclear Deal by 2024?",
+  "title_short": "US rejoin Iran Nuclear Deal by 2024?",
+  "resolution": null,
+  "created_time": "2021-11-08T16:02:21.289220Z",
+  "publish_time": "2021-11-18T15:00:00Z",
+  "close_time": "2023-12-31T22:59:00Z",
+  "resolve_time": "2023-12-31T23:00:00Z",
+  "possibilities": {
+    "type": "binary"
+  },
+  "scoring": {
+    "weight": 1,
+    "cp_hidden_period": 0.2,
+    "cp_hidden_weight_coverage": 1
+  },
+  "type": "forecast",
+  "can_use_powers": false,
+  "user_perms": 294940,
+  "last_activity_time": "2021-11-20T18:47:15.727920Z",
+  "activity": 14.569770554650892,
+  "comment_count": 2,
+  "votes": 4,
+  "number_of_predictions": 13,
+  "related_questions": [],
+  "comment_count_snapshot": 2,
+  "user_vote": 0,
+  "user_community_vis": 0,
+  "my_predictions": null,
+  "anon_prediction_count": 0,
+  "projects": [
+    {
+      "id": 1007,
+      "name": "Nuclear Risk Tournament",
+      "subtitle": "",
+      "description": "<br><p><i><b>Update 11.11.21:</b> Round 3 of the Nuclear Risk Tournament has started, with new questions staggered to open each week: November 11th, 18th, and 25th. </i></p>\r\n\r\n<p><i>Round 3 makes use of the <a href=\"https://www.metaculus.com/questions/8506/new-metaculus-tournament-scoring-system-pt-1/\">newly revised tournament scoring system</a>, with forecasters initially unable to view the community prediction. Importantly, forecasts during this hidden period determine a user's \"coverage\" and therefore a user's tournament ranking, so forecasting early is key. Feedback is welcome via <a href=\"https://www.metaculus.com/questions/8559/announcing-round-3-of-nuclear-risk-tournament/\">this discussion post</a>.</i></p> <br>\r\n\r\n<p>How likely is nuclear conflict in the coming years? How likely are outcomes so extreme that they may lead to <a href = \"https://www.existential-risk.org/concept.pdf\">existential catastrophe</a>? What actions would most effectively reduce these risks and increase our chances of reaching a flourishing future?<p/>\r\n\r\n<p>These and other related questions are complex and time-sensitive, and have direct implications for important funding, policy, research, and career decisions. This tournament is part of <a href = \"https://forum.effectivealtruism.org/posts/HGWvBXZpHwk5TSvg8/overview-of-rethink-priorities-work-on-risks-from-nuclear\">Rethink Priorities’ work to inform those decisions</a> - forecasts, comments, and essays produced for this tournament will inform and in some cases be featured within Rethink Priorities’ other research, and some will be packaged for and directly shared with some key decision-makers.<p/>\r\n\r\n<p>Since its original launch, this overall initiative has been split into three components and Rethink Priorities has generously increased the total prize money. <p/>\r\n\r\n<p><b>The Nuclear Risk Tournament</b>: This now consists entirely of calibration questions that close by December 31, 2023 and have resolution dates no later than January 31, 2024. The original prize money of $2,500 (plus donations) is now entirely devoted to this tournament. You can find the questions and leaderboard below.<p/>\r\n\r\n<p><b><a href = \"https://www.metaculus.com/project/nuclear-horizons/\">The Nuclear Risk Horizons Project</a></b>: This contains all of the longer-range questions, mostly resolving by 2030, 2035, or 2050. Previously launched long-term questions are now part of this project.<p/>\r\n\r\n<p><b>The Szilard Prize</b>: This is a fortified essay competition. Forecasters will compete to write essays that incorporate at least 3 forecasts from the Nuclear Risk Horizons Project. This is intended to leverage and demonstrate forecasters’ knowledge and intellectual labour in ways forecasting questions themselves don’t, including via drawing connections between forecasts and relevant mechanisms, recommendations, and reasoning. Essays will be judged by a panel of experts. The competition is scheduled to open in mid-November 2021 and to close in early December 2021 with a prize pool of $1,000.<p/>\r\n\r\n<p>Thank you to everyone who has participated so far! There is still time to participate in all of the above projects.<p/>\r\n\r\n\r\n<p>Happy forecasting!<p/>",
+      "type": "TO",
+      "site_id": 1,
+      "user_perms": 0,
+      "question_user_perms": 294940,
+      "sign_up_fields": [
+        {
+          "type": "paragraph",
+          "content": "Welcome, and thank you for forecasting in the Nuclear Risk Forecasting Tournament!"
+        },
+        {
+          "type": "paragraph",
+          "content": "We're excited you're here. We're collecting some information about the forecasters in the tournament so that we can publish it together with the results, and improve how we reach forecasters. Thank you for your input!"
+        },
+        {
+          "path": "user.first_name",
+          "type": "text",
+          "label": "First Name",
+          "global": true,
+          "required": true,
+          "placeholder": "John"
+        },
+        {
+          "path": "user.last_name",
+          "type": "text",
+          "label": "Last Name",
+          "global": true,
+          "required": true,
+          "placeholder": "Doe"
+        },
+        {
+          "type": "paragraph",
+          "content": "How did you hear about this tournament?"
+        },
+        {
+          "type": "select",
+          "label": "Source",
+          "options": [
+            {
+              "label": "Rethink Priorities",
+              "value": "Rethink Priorities"
+            },
+            {
+              "label": "Metaculus Social Media ",
+              "value": "Metaculus Social Media "
+            },
+            {
+              "label": "Metaculus Newsletter",
+              "value": "Metaculus Newsletter"
+            },
+            {
+              "label": "Word of Mouth",
+              "value": "Word of Mouth"
+            },
+            {
+              "label": "Other",
+              "value": "Other"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "We'd love to know what motivated you to sign up. Why are you interested in participating in the tournament?"
+        },
+        {
+          "type": "textarea",
+          "label": "Motivation"
+        },
+        {
+          "type": "select",
+          "label": "Nuclear Conflict Background",
+          "options": [
+            {
+              "label": "Beginner",
+              "value": "Beginner"
+            },
+            {
+              "label": "Enthusiast",
+              "value": "Enthusiast"
+            },
+            {
+              "label": "Academic Reader",
+              "value": "Academic Reader"
+            },
+            {
+              "label": "Professional",
+              "value": "Professional"
+            },
+            {
+              "label": "Researcher",
+              "value": "Researcher"
+            }
+          ],
+          "required": false
+        },
+        {
+          "type": "select",
+          "label": "Academic Degree",
+          "options": [
+            {
+              "label": "Agriculture",
+              "value": "Agriculture"
+            },
+            {
+              "label": "Anthropology",
+              "value": "Anthropology"
+            },
+            {
+              "label": "Archaeology",
+              "value": "Archaeology"
+            },
+            {
+              "label": "Architecture and design",
+              "value": "Architecture and design"
+            },
+            {
+              "label": "Astronomy",
+              "value": "Astronomy"
+            },
+            {
+              "label": "Biology",
+              "value": "Biology"
+            },
+            {
+              "label": "Business",
+              "value": "Business"
+            },
+            {
+              "label": "Chemistry",
+              "value": "Chemistry"
+            },
+            {
+              "label": "Computer Science",
+              "value": "Computer Science"
+            },
+            {
+              "label": "Earth sciences",
+              "value": "Earth sciences"
+            },
+            {
+              "label": "Economics",
+              "value": "Economics"
+            },
+            {
+              "label": "Education",
+              "value": "Education"
+            },
+            {
+              "label": "Engineering and technology",
+              "value": "Engineering and technology"
+            },
+            {
+              "label": "Ethnic and culturalstudies",
+              "value": "Ethnic and culturalstudies"
+            },
+            {
+              "label": "History",
+              "value": "History"
+            },
+            {
+              "label": "Journalism media studies and communication",
+              "value": "Journalism media studies and communication"
+            },
+            {
+              "label": "Law",
+              "value": "Law"
+            },
+            {
+              "label": "Literature",
+              "value": "Literature"
+            },
+            {
+              "label": "Mathematics",
+              "value": "Mathematics"
+            },
+            {
+              "label": "Medicine",
+              "value": "Medicine"
+            },
+            {
+              "label": "Philosophy",
+              "value": "Philosophy"
+            },
+            {
+              "label": "Physics",
+              "value": "Physics"
+            },
+            {
+              "label": "Political science",
+              "value": "Political science"
+            },
+            {
+              "label": "Psychology",
+              "value": "Psychology"
+            },
+            {
+              "label": "Public policy",
+              "value": "Public policy"
+            },
+            {
+              "label": "Religion",
+              "value": "Religion"
+            },
+            {
+              "label": "Sociology",
+              "value": "Sociology"
+            },
+            {
+              "label": "Statistics",
+              "value": "Statistics"
+            },
+            {
+              "label": "Other",
+              "value": "Other"
+            }
+          ],
+          "required": false
+        },
+        {
+          "type": "select",
+          "label": "Highest academic degree",
+          "options": [
+            {
+              "label": "High School",
+              "value": "High School"
+            },
+            {
+              "label": "Associate's",
+              "value": "Associate's"
+            },
+            {
+              "label": "Bachelors",
+              "value": "Bachelors"
+            },
+            {
+              "label": "Masters",
+              "value": "Masters"
+            },
+            {
+              "label": "Doctorate",
+              "value": "Doctorate"
+            },
+            {
+              "label": "Other",
+              "value": "Other"
+            }
+          ],
+          "required": false
+        }
+      ],
+      "tournament_close_date": "2024-02-01T00:00:00Z",
+      "prize_pool": 2563.0,
+      "url": "/tournament/nuclear-risk-forecasting-tournament/",
+      "config": {}
+    },
+    {
+      "id": 1223,
+      "name": "Szilard Fortified Essay Contest",
+      "subtitle": "",
+      "description": "<h3 class=\"subsection-header\" toggle-details=\"aboutSectionToggle\" ng-init=\"aboutSectionToggle=true\">About</h3>\r\n<div ng-show=\"aboutSectionToggle\">\r\n    <p>In this essay contest, we open the floor for investigations of long-term nuclear risks and what might be done to reduce them.&nbsp;</p>\r\n    <p>As of November 12, 2021, through the <a href=\"https://www.metaculus.com/tournament/nuclear-risk-forecasting-tournament/\" target=\"_blank\" rel=\"noopener\">Nuclear Risk Forecasting Tournament</a> and <a href=\"https://www.metaculus.com/project/nuclear-horizons/\" target=\"_blank\" rel=\"noopener\">Nuclear Risk Horizons Project</a>, 151 Metaculus users have provided a total of 3503 forecasts on 113 questions. These will be used by Rethink Priorities and other stakeholders to guide decisions about funding, research, and policy, hopefully helping to secure and improve the long-term future of humanity.&nbsp;</p>\r\n    <p>But the aggregate forecasts are in themselves silent about what mechanisms are driving the probabilities up and down, what actions should be taken to affect the probabilities or in light of the probabilities, and what lines of reasoning or sources may be worth considering. Forecasters sometimes address those topics in comments, and this is sometimes highly valuable, but it&rsquo;s not directly incentivized, it&rsquo;s not common, and it rarely goes into substantial depth.&nbsp;</p>\r\n    <p>This Fortified Essay competition is intended to fill that void - to leverage and demonstrate forecasters&rsquo; knowledge and intellectual labour in ways that the forecasting questions themselves don&rsquo;t. We seek essays that reference long-range nuclear risk forecasting questions (and, optionally, other forecasting questions) while putting them into context and discussing mechanisms, recommendations, and reasoning. These essays can then be used by stakeholders to inform their decisions, and to help them better understand the nuclear risk forecasts themselves and how much weight to put on them.&nbsp;</p>\r\n    <p>Three additional goals of this competition are to:</p>\r\n    <ul>\r\n    <li>Identify and reward insightful thinkers and forecasters on the topic of nuclear risk</li>\r\n    <li>Provide a probabilistically and quantitatively minded arena for discussion and exchange of ideas regarding nuclear risk</li>\r\n    <li>Provide exemplars of a style of writing that&rsquo;s quite distinct from most writing on nuclear risk (and other topics), in that that writing, despite many strengths, often leaves its predictions about the future too unclear to act on or falsify</li>\r\n    </ul>\r\n</div>\r\n\r\n<h3 class=\"subsection-header\" toggle-details=\"evaluationCriteriaToggle\">Evaluation criteria</h3>\r\n<div ng-show=\"evaluationCriteriaToggle\">\r\n    <p>An expert panel of judges will be instructed to rate the entries based on the extent to which the essay:</p>\r\n<ul>\r\n<li>clearly and coherently addresses one of the essay prompts (see below)</li>\r\n<li>synthesizes at least 3 of the forecasts made in the Nuclear Risk Horizons Project and draws out their key implications. Referencing more forecasts is only desirable if it meaningfully contributes to the analysis</li>\r\n<li>demonstrates a solid understanding of both forecasting and relevant aspects of nuclear risk&nbsp;</li>\r\n<li>provides relevant evidence and reasoning and has high <a href=\"https://www.openphilanthropy.org/reasoning-transparency\" target=\"_blank\" rel=\"noopener\">reasoning transparency</a></li>\r\n<li>is well written, so that it is comprehensible, enjoyable to read, and accessible to a well-educated but non-specialist audience (aiming in the range between the level of Scientific American and a review article in Science or Nature)&nbsp;</li>\r\n</ul>\r\n</div>\r\n<h3 class=\"subsection-header\" toggle-details=\"essayTopicsToggle\">Essay Topics</h3>\r\n<div ng-show=\"essayTopicsToggle\">\r\n    <p>Each essay must address one of the topics below:</p>\r\n<ul>\r\n<li>What is/are the most likely way(s) a nuclear war involving hundreds of detonations could end up occurring by 2050? That is, how might the war start, and why would it either (a) start out involving hundreds of detonations or (b) escalate to that point? Justify the view that this/these way(s) are the most likely.</li>\r\n<li>If there&rsquo;s a nuclear war involving hundreds of detonations by 2050, what would the short- and long-term effects be? Justify the view that these would be the effects.</li>\r\n<li>What actions would most effectively reduce nuclear risk - especially risks posed by nuclear weapons to the long-term future of humanity? I.e., which actions would have the highest expected value from this perspective (taking into account - roughly speaking - both the likelihood the action is successful and the amount by which risk would be reduced if so)? Justify the view that these actions would be especially effective. You can consider actions that funders, policymakers, researchers, or whoever else could take.&nbsp;</li>\r\n<li>What is one novel or very rarely discussed action that might effectively reduce nuclear risk - especially risks posed by nuclear weapons to the long-term future of humanity? How could this action best be taken? Justify the view that this action might be effective. You can consider actions that funders, policymakers, researchers, or whoever else could take.</li>\r\n<li>Overall, has nuclear risk risen or fallen in the last three decades, and will it rise or fall over the next three decades? Justify your view.</li>\r\n</ul>\r\n</div>\r\n<h3 class=\"subsection-header\" toggle-details=\"prizesToggle\">Prizes</h3>\r\n<div ng-show=\"prizesToggle\">\r\n    <p>A total of $1,000 will be awarded for the contest. The prize allocation by rank is as follows:</p>\r\n<ol>\r\n<li>$300</li>\r\n<li>$250</li>\r\n<li>$200</li>\r\n<li>$150</li>\r\n<li>$100</li>\r\n</ol>\r\n<p>With each author&rsquo;s permission, all 5 winning essays will be published on the EA forum under Metaculus&rsquo;s account. Metaculus will also make a post announcing the winners and linking to their essays on the Metaculus site, the EA Forum, and LessWrong.</p>\r\n\r\n</div>\r\n<h3 class=\"subsection-header\" toggle-details=\"submissionRulesToggle\">Submission Rules</h3>\r\n<div ng-show=\"submissionRulesToggle\">\r\n    <ul>\r\n        <li>Submissions must be made through Metaculus&rsquo;s Notebook feature between November 16, 2021 and December 6, 2021 (click + at the top of this page)</li>\r\n        <li>Submissions must include at least 3 forecasts from the Nuclear Risk Horizons Project</li>\r\n        <li>Each participant may submit only one essay per prompt, but may submit an essay for as many of the prompts as they wish (so up to 5 total)</li>\r\n        <li>An entry should differ substantially from any previously published piece by the author</li>\r\n        <li>Submissions should be between 750-1500 words (excluding bibliography and footnotes)</li>\r\n        </ul>\r\n        \r\n</div>",
+      "type": "FE",
+      "site_id": 1,
+      "user_perms": 0,
+      "question_user_perms": 294940,
+      "sign_up_fields": [
+        {
+          "type": "paragraph",
+          "content": "Welcome, and thank you for joining the Szilard Fortified Essay Contest!"
+        },
+        {
+          "type": "paragraph",
+          "content": "We're excited you're here. We're collecting some information about the forecasters in this contest so that we can publish it together with the results, and improve how we reach forecasters. Thank you for your input!"
+        },
+        {
+          "path": "user.first_name",
+          "type": "text",
+          "label": "First Name",
+          "global": true,
+          "required": true,
+          "placeholder": "John"
+        },
+        {
+          "path": "user.last_name",
+          "type": "text",
+          "label": "Last Name",
+          "global": true,
+          "required": true,
+          "placeholder": "Doe"
+        },
+        {
+          "type": "paragraph",
+          "content": "How did you hear about this contest?"
+        },
+        {
+          "type": "select",
+          "label": "Source",
+          "options": [
+            {
+              "label": "Rethink Priorities",
+              "value": "Rethink Priorities"
+            },
+            {
+              "label": "Metaculus Social Media ",
+              "value": "Metaculus Social Media "
+            },
+            {
+              "label": "Metaculus Newsletter",
+              "value": "Metaculus Newsletter"
+            },
+            {
+              "label": "Word of Mouth",
+              "value": "Word of Mouth"
+            },
+            {
+              "label": "Other",
+              "value": "Other"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "We'd love to know what motivated you to sign up. Why are you interested in participating in the contest?"
+        },
+        {
+          "type": "textarea",
+          "label": "Motivation"
+        },
+        {
+          "type": "select",
+          "label": "Nuclear Conflict Background",
+          "options": [
+            {
+              "label": "Beginner",
+              "value": "Beginner"
+            },
+            {
+              "label": "Enthusiast",
+              "value": "Enthusiast"
+            },
+            {
+              "label": "Academic Reader",
+              "value": "Academic Reader"
+            },
+            {
+              "label": "Professional",
+              "value": "Professional"
+            },
+            {
+              "label": "Researcher",
+              "value": "Researcher"
+            }
+          ],
+          "required": false
+        },
+        {
+          "type": "select",
+          "label": "Academic Degree",
+          "options": [
+            {
+              "label": "Agriculture",
+              "value": "Agriculture"
+            },
+            {
+              "label": "Anthropology",
+              "value": "Anthropology"
+            },
+            {
+              "label": "Archaeology",
+              "value": "Archaeology"
+            },
+            {
+              "label": "Architecture and design",
+              "value": "Architecture and design"
+            },
+            {
+              "label": "Astronomy",
+              "value": "Astronomy"
+            },
+            {
+              "label": "Biology",
+              "value": "Biology"
+            },
+            {
+              "label": "Business",
+              "value": "Business"
+            },
+            {
+              "label": "Chemistry",
+              "value": "Chemistry"
+            },
+            {
+              "label": "Computer Science",
+              "value": "Computer Science"
+            },
+            {
+              "label": "Earth sciences",
+              "value": "Earth sciences"
+            },
+            {
+              "label": "Economics",
+              "value": "Economics"
+            },
+            {
+              "label": "Education",
+              "value": "Education"
+            },
+            {
+              "label": "Engineering and technology",
+              "value": "Engineering and technology"
+            },
+            {
+              "label": "Ethnic and culturalstudies",
+              "value": "Ethnic and culturalstudies"
+            },
+            {
+              "label": "History",
+              "value": "History"
+            },
+            {
+              "label": "Journalism media studies and communication",
+              "value": "Journalism media studies and communication"
+            },
+            {
+              "label": "Law",
+              "value": "Law"
+            },
+            {
+              "label": "Literature",
+              "value": "Literature"
+            },
+            {
+              "label": "Mathematics",
+              "value": "Mathematics"
+            },
+            {
+              "label": "Medicine",
+              "value": "Medicine"
+            },
+            {
+              "label": "Philosophy",
+              "value": "Philosophy"
+            },
+            {
+              "label": "Physics",
+              "value": "Physics"
+            },
+            {
+              "label": "Political science",
+              "value": "Political science"
+            },
+            {
+              "label": "Psychology",
+              "value": "Psychology"
+            },
+            {
+              "label": "Public policy",
+              "value": "Public policy"
+            },
+            {
+              "label": "Religion",
+              "value": "Religion"
+            },
+            {
+              "label": "Sociology",
+              "value": "Sociology"
+            },
+            {
+              "label": "Statistics",
+              "value": "Statistics"
+            },
+            {
+              "label": "Other",
+              "value": "Other"
+            }
+          ],
+          "required": false
+        },
+        {
+          "type": "select",
+          "label": "Highest academic degree",
+          "options": [
+            {
+              "label": "High School",
+              "value": "High School"
+            },
+            {
+              "label": "Associate's",
+              "value": "Associate's"
+            },
+            {
+              "label": "Bachelors",
+              "value": "Bachelors"
+            },
+            {
+              "label": "Masters",
+              "value": "Masters"
+            },
+            {
+              "label": "Doctorate",
+              "value": "Doctorate"
+            },
+            {
+              "label": "Other",
+              "value": "Other"
+            }
+          ],
+          "required": false
+        }
+      ],
+      "tournament_close_date": "2021-12-06T14:15:09Z",
+      "prize_pool": 1000.0,
+      "url": "/project/nuclear-risk-essay-contest/",
+      "config": {
+        "words_limit": 1500,
+        "max_submissions": 5,
+        "required_forecasts": 3
+      }
+    }
+  ],
+  "description_html": "<p><em>This is one of several questions in this tournament focused on nuclear proliferation, force sizes, or yields. See <a href=\"https://www.metaculus.com/questions/8126/nuclear-proliferation-force-sizes--yields/\">here</a> for a list of such questions and some discussion of these topics. See in particular <a href=\"https://www.metaculus.com/questions/7840/us-rejoins-iran-deal-before-2023/\">a \"by 2023\" version of this same question</a>.</em></p>\n<p>The <a href=\"https://en.wikipedia.org/wiki/Joint_Comprehensive_Plan_of_Action\">Joint Comprehensive Plan of Action</a> (JCPOA, also known informally as the Iran Nuclear Deal) is an international agreement between the United States, Iran, and multiple other nations, focused primarily on reducing Iran's capacity to enrich uranium (necessary to create nuclear weapons), in exchange for the United States and other nations lifting sanctions on Iran. On 2018-05-08, the Trump Administration <a href=\"https://www.nytimes.com/2018/05/08/world/middleeast/trump-iran-nuclear-deal.html\">officially withdrew</a> from the deal and re-imposed sanctions on Iran. Iran responded to this by building more centrifuges and enriching uranium greater than the limits allowed under the JCPOA.</p>\n<p>On 2020-09-13, <a href=\"https://www.armscontrol.org/act/2021-01/features/returning-progress-iran\">President-Elect Biden stated that</a> if \"Iran returns to strict compliance with the nuclear deal, the United States would rejoin the agreement as a starting point for follow-on negotiations.\" <a href=\"https://www.reuters.com/article/uk-iran-usa-zarif-idUKKBN27X340\">Iranian Foreign Minister Mohammad Javad Zarif stated that</a> the United States could rejoin the agreement \"automatically and with no need to set conditions [if] the United States carries out its duties under Security Council Resolution 2231.\"</p>\n<p><strong><em>Will the US rejoin the Iran Nuclear Deal by 2024?</em></strong></p>\n<p>This question resolves positively if the United States lifts or waives sanctions against Iran to the extent previously mandated by the JCPOA, before 2024-01-01, 00:00 EST. The order must go into effect before 2024-01-01; a conditional announcement or promise does not suffice. The question will resolve regardless of whether Iran agrees to any terms or reduces its nuclear production capacity. Credible media reports or an official statement will suffice as a source.</p>\n<p><strong>See also:</strong></p>\n<ul>\n<li>\n<p><a href=\"https://www.metaculus.com/questions/7840/us-rejoins-iran-deal-before-2023/\">Will the US rejoin the Iran Nuclear Deal before 2023?</a></p>\n</li>\n<li>\n<p><a href=\"https://www.metaculus.com/questions/8160/us-iran-war-by-2024/\">Will there be a US-Iran war by 2024?</a></p>\n</li>\n</ul>",
+  "user_predictions": null,
+  "categories": [
+    "geopolitics--armedconflict",
+    "series--nuclearthreats",
+    "series--nuclearthreats--round-3"
+  ],
+  "last_read": "2021-11-20T22:19:33.928186Z",
+  "my_dashboard": null,
+  "shared_with": [],
+  "community_prediction": {
+    "history": [],
+    "full": {
+      "y": []
+    },
+    "unweighted": {
+      "y": []
+    }
+  },
+  "status": "A",
+  "prediction_histogram": [
+    [
+      0.01,
+      0.0,
+      0.0
+    ],
+    [
+      0.02,
+      0.0,
+      0.0
+    ],
+    [
+      0.03,
+      0.0,
+      0.0
+    ],
+    [
+      0.04,
+      0.0,
+      0.0
+    ],
+    [
+      0.05,
+      0.0,
+      0.0
+    ],
+    [
+      0.060000000000000005,
+      0.0,
+      0.0
+    ],
+    [
+      0.06999999999999999,
+      0.0,
+      0.0
+    ],
+    [
+      0.08,
+      0.0,
+      0.0
+    ],
+    [
+      0.09,
+      0.0,
+      0.0
+    ],
+    [
+      0.09999999999999999,
+      0.0,
+      0.0
+    ],
+    [
+      0.11,
+      0.0,
+      0.0
+    ],
+    [
+      0.12,
+      0.0,
+      0.0
+    ],
+    [
+      0.13,
+      0.0,
+      0.0
+    ],
+    [
+      0.14,
+      0.0,
+      0.0
+    ],
+    [
+      0.15000000000000002,
+      0.0,
+      0.0
+    ],
+    [
+      0.16,
+      1.0,
+      0.71616
+    ],
+    [
+      0.17,
+      0.0,
+      0.0
+    ],
+    [
+      0.18000000000000002,
+      0.0,
+      0.0
+    ],
+    [
+      0.19,
+      0.0,
+      0.0
+    ],
+    [
+      0.2,
+      1.0,
+      1.0
+    ],
+    [
+      0.21000000000000002,
+      0.0,
+      0.0
+    ],
+    [
+      0.22,
+      0.0,
+      0.0
+    ],
+    [
+      0.23,
+      0.0,
+      0.0
+    ],
+    [
+      0.24000000000000002,
+      0.0,
+      0.0
+    ],
+    [
+      0.25,
+      0.0,
+      0.0
+    ],
+    [
+      0.26,
+      0.0,
+      0.0
+    ],
+    [
+      0.27,
+      0.0,
+      0.0
+    ],
+    [
+      0.28,
+      0.0,
+      0.0
+    ],
+    [
+      0.29000000000000004,
+      0.0,
+      0.0
+    ],
+    [
+      0.3,
+      2.0,
+      1.24626
+    ],
+    [
+      0.31,
+      0.0,
+      0.0
+    ],
+    [
+      0.32,
+      0.0,
+      0.0
+    ],
+    [
+      0.33,
+      0.0,
+      0.0
+    ],
+    [
+      0.34,
+      0.0,
+      0.0
+    ],
+    [
+      0.35000000000000003,
+      0.0,
+      0.0
+    ],
+    [
+      0.36000000000000004,
+      0.0,
+      0.0
+    ],
+    [
+      0.37,
+      0.0,
+      0.0
+    ],
+    [
+      0.38,
+      0.0,
+      0.0
+    ],
+    [
+      0.39,
+      2.0,
+      0.80305
+    ],
+    [
+      0.4,
+      0.0,
+      0.0
+    ],
+    [
+      0.41000000000000003,
+      0.0,
+      0.0
+    ],
+    [
+      0.42000000000000004,
+      0.0,
+      0.0
+    ],
+    [
+      0.43,
+      0.0,
+      0.0
+    ],
+    [
+      0.44,
+      0.0,
+      0.0
+    ],
+    [
+      0.45,
+      1.0,
+      0.17411
+    ],
+    [
+      0.46,
+      0.0,
+      0.0
+    ],
+    [
+      0.47000000000000003,
+      0.0,
+      0.0
+    ],
+    [
+      0.48000000000000004,
+      0.0,
+      0.0
+    ],
+    [
+      0.49,
+      0.0,
+      0.0
+    ],
+    [
+      0.5,
+      1.0,
+      0.59659
+    ],
+    [
+      0.51,
+      0.0,
+      0.0
+    ],
+    [
+      0.52,
+      0.0,
+      0.0
+    ],
+    [
+      0.53,
+      1.0,
+      0.11506
+    ],
+    [
+      0.54,
+      0.0,
+      0.0
+    ],
+    [
+      0.55,
+      0.0,
+      0.0
+    ],
+    [
+      0.56,
+      0.0,
+      0.0
+    ],
+    [
+      0.5700000000000001,
+      0.0,
+      0.0
+    ],
+    [
+      0.5800000000000001,
+      0.0,
+      0.0
+    ],
+    [
+      0.59,
+      0.0,
+      0.0
+    ],
+    [
+      0.6,
+      0.0,
+      0.0
+    ],
+    [
+      0.61,
+      0.0,
+      0.0
+    ],
+    [
+      0.62,
+      0.0,
+      0.0
+    ],
+    [
+      0.63,
+      0.0,
+      0.0
+    ],
+    [
+      0.64,
+      0.0,
+      0.0
+    ],
+    [
+      0.65,
+      0.0,
+      0.0
+    ],
+    [
+      0.66,
+      1.0,
+      0.23925
+    ],
+    [
+      0.67,
+      0.0,
+      0.0
+    ],
+    [
+      0.68,
+      0.0,
+      0.0
+    ],
+    [
+      0.6900000000000001,
+      0.0,
+      0.0
+    ],
+    [
+      0.7000000000000001,
+      0.0,
+      0.0
+    ],
+    [
+      0.7100000000000001,
+      0.0,
+      0.0
+    ],
+    [
+      0.72,
+      0.0,
+      0.0
+    ],
+    [
+      0.73,
+      0.0,
+      0.0
+    ],
+    [
+      0.74,
+      0.0,
+      0.0
+    ],
+    [
+      0.75,
+      0.0,
+      0.0
+    ],
+    [
+      0.76,
+      0.0,
+      0.0
+    ],
+    [
+      0.77,
+      0.0,
+      0.0
+    ],
+    [
+      0.78,
+      0.0,
+      0.0
+    ],
+    [
+      0.79,
+      0.0,
+      0.0
+    ],
+    [
+      0.8,
+      0.0,
+      0.0
+    ],
+    [
+      0.81,
+      0.0,
+      0.0
+    ],
+    [
+      0.8200000000000001,
+      0.0,
+      0.0
+    ],
+    [
+      0.8300000000000001,
+      0.0,
+      0.0
+    ],
+    [
+      0.8400000000000001,
+      0.0,
+      0.0
+    ],
+    [
+      0.85,
+      0.0,
+      0.0
+    ],
+    [
+      0.86,
+      0.0,
+      0.0
+    ],
+    [
+      0.87,
+      0.0,
+      0.0
+    ],
+    [
+      0.88,
+      0.0,
+      0.0
+    ],
+    [
+      0.89,
+      0.0,
+      0.0
+    ],
+    [
+      0.9,
+      0.0,
+      0.0
+    ],
+    [
+      0.91,
+      0.0,
+      0.0
+    ],
+    [
+      0.92,
+      0.0,
+      0.0
+    ],
+    [
+      0.93,
+      0.0,
+      0.0
+    ],
+    [
+      0.9400000000000001,
+      0.0,
+      0.0
+    ],
+    [
+      0.9500000000000001,
+      0.0,
+      0.0
+    ],
+    [
+      0.9600000000000001,
+      0.0,
+      0.0
+    ],
+    [
+      0.97,
+      0.0,
+      0.0
+    ],
+    [
+      0.98,
+      0.0,
+      0.0
+    ],
+    [
+      0.99,
+      0.0,
+      0.0
+    ]
+  ],
+  "prediction_timeseries": [
+    {
+      "t": 1637257536.9970708,
+      "community_prediction": 0.53,
+      "num_predictions": 1,
+      "distribution": {
+        "num": 1,
+        "avg": 0.53,
+        "var": 0.0
+      }
+    },
+    {
+      "t": 1637258672.6251774,
+      "community_prediction": 0.49,
+      "num_predictions": 2,
+      "distribution": {
+        "num": 2,
+        "avg": 0.49,
+        "var": 0.0016
+      }
+    },
+    {
+      "t": 1637258879.7077453,
+      "community_prediction": 0.53,
+      "num_predictions": 3,
+      "distribution": {
+        "num": 3,
+        "avg": 0.54667,
+        "var": 0.00749
+      }
+    },
+    {
+      "t": 1637262670.6094134,
+      "community_prediction": 0.45,
+      "num_predictions": 4,
+      "distribution": {
+        "num": 4,
+        "avg": 0.52,
+        "var": 0.00775
+      }
+    },
+    {
+      "t": 1637262687.3190198,
+      "community_prediction": 0.45,
+      "num_predictions": 5,
+      "distribution": {
+        "num": 4,
+        "avg": 0.51,
+        "var": 0.00965
+      }
+    },
+    {
+      "t": 1637262696.3482435,
+      "community_prediction": 0.45,
+      "num_predictions": 6,
+      "distribution": {
+        "num": 4,
+        "avg": 0.5075,
+        "var": 0.01022
+      }
+    },
+    {
+      "t": 1637267763.3849752,
+      "community_prediction": 0.4,
+      "num_predictions": 7,
+      "distribution": {
+        "num": 5,
+        "avg": 0.486,
+        "var": 0.01002
+      }
+    },
+    {
+      "t": 1637267773.1809375,
+      "community_prediction": 0.39,
+      "num_predictions": 8,
+      "distribution": {
+        "num": 5,
+        "avg": 0.466,
+        "var": 0.01506
+      }
+    },
+    {
+      "t": 1637297834.525453,
+      "community_prediction": 0.39,
+      "num_predictions": 9,
+      "distribution": {
+        "num": 6,
+        "avg": 0.45333,
+        "var": 0.01336
+      }
+    },
+    {
+      "t": 1637334609.7481303,
+      "community_prediction": 0.39,
+      "num_predictions": 10,
+      "distribution": {
+        "num": 7,
+        "avg": 0.46,
+        "var": 0.01171
+      }
+    },
+    {
+      "t": 1637419162.443017,
+      "community_prediction": 0.39,
+      "num_predictions": 11,
+      "distribution": {
+        "num": 8,
+        "avg": 0.4225,
+        "var": 0.02009
+      }
+    },
+    {
+      "t": 1637420317.9202454,
+      "community_prediction": 0.3,
+      "num_predictions": 12,
+      "distribution": {
+        "num": 9,
+        "avg": 0.40889,
+        "var": 0.01934
+      }
+    },
+    {
+      "t": 1637425073.1418583,
+      "community_prediction": 0.3,
+      "num_predictions": 13,
+      "distribution": {
+        "num": 10,
+        "avg": 0.388,
+        "var": 0.02134
+      }
+    }
+  ]
+}

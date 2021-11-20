@@ -1,7 +1,8 @@
 use std::fs::File;
 use std::io::BufReader;
+use chrono::{NaiveDate, NaiveDateTime};
 
-use metaculustetra::Prediction::{AmbP, NumP};
+use metaculustetra::Prediction::{AmbP, DatP, NumP};
 use metaculustetra::*;
 
 fn read_file(filename: &str) -> Question {
@@ -77,16 +78,37 @@ fn test_range_question() {
 #[test]
 fn test_logarithmic_range_question() {
     let question = read_file("logarithmic_range_example");
+
+    let community_prediction = ((100000000000000000000000000.0/1000000000000.0) as f64).powf(0.41079) * 1000000000000.0;
+
+    assert_eq!(question.get_best_prediction().unwrap(), NumP(community_prediction));
+    assert_eq!(question.get_community_prediction().unwrap(), NumP(community_prediction));
 }
 
 #[test]
 fn test_date_range_question() {
     let question = read_file("date_range_example");
+
+    let start_date = NaiveDateTime::parse_from_str("2021-01-15", "%Y-%m-%d").unwrap().timestamp() as f64;
+    let end_date = NaiveDateTime::parse_from_str("2025-01-01", "%Y-%m-%d").unwrap().timestamp() as f64;
+
+    let community_date = NaiveDateTime::from_timestamp((0.27891 * (end_date - start_date) + start_date) as i64, 0);
+
+    assert_eq!(question.get_best_prediction().unwrap(), DatP(community_date));
+    assert_eq!(question.get_community_prediction().unwrap(), DatP(community_date));
 }
 
 #[test]
 fn test_logarithmic_date_range_question() {
     let question = read_file("logarithmic_date_range_example");
+
+    let start_date = NaiveDateTime::parse_from_str("2020-03-27", "%Y-%m-%d").unwrap().timestamp() as f64;
+    let end_date = NaiveDateTime::parse_from_str("2200-01-04", "%Y-%m-%d").unwrap().timestamp() as f64;
+
+    let community_date = NaiveDateTime::from_timestamp(((end_date / start_date).powf(0.70277) * start_date) as i64, 0);
+
+    assert_eq!(question.get_best_prediction().unwrap(), DatP(community_date));
+    assert_eq!(question.get_community_prediction().unwrap(), DatP(community_date));
 }
 
 #[test]
@@ -113,10 +135,15 @@ fn test_ambiguously_resolved_question() {
 #[test]
 fn test_ambiguously_resolved_range_question() {
     let question = read_file("ambiguously_resolved_range_example");
-    assert_eq!(question.get_best_prediction(), None);
-    assert_eq!(question.get_resolution(), None);
-    /*
-    assert_eq!(question.get_community_prediction(), Some(0.05));
-    assert_eq!(question.get_metaculus_prediction(), Some(0.05758051341132789));
-    */
+    assert_eq!(question.get_best_prediction().unwrap(), AmbP);
+    assert_eq!(question.get_resolution().unwrap(), AmbP);
+    assert_eq!(question.get_community_prediction().unwrap(), NumP(40.749));
+    assert_eq!(question.get_metaculus_prediction().unwrap(), NumP(38.73));
+}
+
+#[test]
+fn test_unrevealed_question() {
+    let question = read_file("tournament_example");
+    assert_eq!(question.get_best_prediction().unwrap(), NumP(0.3));
+    assert_eq!(question.get_community_prediction().unwrap(), NumP(0.3));
 }

@@ -1,4 +1,5 @@
-use crate::Prediction::{AmbP, NumP};
+use chrono::{DateTime, NaiveDateTime};
+use crate::Prediction::{AmbP, DatP, NumP};
 use log::info;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
@@ -18,10 +19,11 @@ impl Metaculus<'_> {
     }
 
     pub fn get_numeric_prediction_for(&self, id: &str) -> Option<f64> {
-        match self.get_prediction_for(id)? {
-            NumP(p) => Some(p),
-            _ => None,
-        }
+       self.get_prediction_for(id)?.get_if_numeric()
+    }
+
+    pub fn get_date_prediction_for(&self, id: &str) -> Option<NaiveDateTime> {
+        self.get_prediction_for(id)?.get_if_date()
     }
 
     pub fn get_prediction_for(&self, id: &str) -> Option<Prediction> {
@@ -107,6 +109,23 @@ impl Question {
 pub enum Prediction {
     AmbP,
     NumP(f64),
+    DatP(NaiveDateTime)
+}
+
+impl Prediction {
+    pub fn get_if_numeric(&self) -> Option<f64> {
+        match self {
+            NumP(p) => { Some(*p) }
+            _ => None
+        }
+    }
+
+    pub fn get_if_date(&self) -> Option<NaiveDateTime> {
+        match self {
+            DatP(p) => { Some(*p) }
+            _ => None
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
