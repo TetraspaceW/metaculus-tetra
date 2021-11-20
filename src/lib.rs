@@ -1,5 +1,5 @@
-use chrono::{DateTime, NaiveDateTime};
 use crate::Prediction::{AmbP, DatP, NumP};
+use chrono::{NaiveDate, NaiveDateTime};
 use log::info;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
@@ -19,7 +19,7 @@ impl Metaculus<'_> {
     }
 
     pub fn get_numeric_prediction_for(&self, id: &str) -> Option<f64> {
-       self.get_prediction_for(id)?.get_if_numeric()
+        self.get_prediction_for(id)?.get_if_numeric()
     }
 
     pub fn get_date_prediction_for(&self, id: &str) -> Option<NaiveDateTime> {
@@ -66,39 +66,75 @@ impl Question {
         let community_prediction = match self.prediction_timeseries.as_ref()?.last()? {
             PredictionTimeseriesPoint::NumericPTP {
                 community_prediction,
-            } => *community_prediction,
+            } => NumP(*community_prediction),
             PredictionTimeseriesPoint::RangePTP {
                 community_prediction,
             } => self.convert_range_prediction(community_prediction.q2)?,
         };
 
-        Some(NumP(community_prediction))
+        Some(community_prediction)
     }
 
     pub fn get_metaculus_prediction(&self) -> Option<Prediction> {
         let metaculus_prediction = match self.metaculus_prediction.as_ref()? {
-            MetaculusPredictionTimeseriesPoint::NumericMPTP { full } => *full,
+            MetaculusPredictionTimeseriesPoint::NumericMPTP { full } => NumP(*full),
             MetaculusPredictionTimeseriesPoint::RangeMPTP { full } => {
                 self.convert_range_prediction(full.q2)?
             }
         };
 
-        Some(NumP(metaculus_prediction))
+        Some(metaculus_prediction)
     }
 
-    fn convert_range_prediction(&self, prediction: f64) -> Option<f64> {
+    fn convert_range_prediction(&self, prediction: f64) -> Option<Prediction> {
         let scale = self.possibilities.scale.as_ref()?;
-        let min = scale.min;
-        let max = scale.max;
 
-        Some(prediction * (max - min) + min)
+        match scale {
+            RangeQuestionScale::NumericRangeQuestionScale {
+                min,
+                max,
+                deriv_ratio,
+            } => Some(NumP(self.scale_range_prediction(
+                prediction,
+                *min,
+                *max,
+                *deriv_ratio,
+            ))),
+            RangeQuestionScale::DateRangeQuestionScale {
+                min,
+                max,
+                deriv_ratio,
+            } => {
+                let date_format = "%Y-%m-%d";
+                let min_ts = NaiveDate::parse_from_str(min, date_format)
+                    .ok()?
+                    .and_hms(0, 0, 0)
+                    .timestamp() as f64;
+                let max_ts = NaiveDate::parse_from_str(max, date_format)
+                    .ok()?
+                    .and_hms(0, 0, 0)
+                    .timestamp() as f64;
+                Some(DatP(NaiveDateTime::from_timestamp(
+                    self.scale_range_prediction(prediction, min_ts, max_ts, *deriv_ratio) as i64,
+                    0,
+                )))
+            }
+        }
+    }
+
+    fn scale_range_prediction(&self, prediction: f64, min: f64, max: f64, deriv_ratio: f64) -> f64 {
+        return if deriv_ratio == 1.0 {
+            prediction * (max - min) + min
+        } else {
+            (max / min).powf(prediction) * min
+        };
     }
 
     pub fn get_resolution(&self) -> Option<Prediction> {
         return if self.resolution? == -1.0 {
             Some(AmbP)
         } else if self.possibilities.question_type == "continuous" {
-            Some(NumP(self.convert_range_prediction(self.resolution?)?))
+            Some(self.convert_range_prediction(self.resolution?)?)
         } else {
             Some(NumP(self.resolution?))
         };
@@ -109,21 +145,21 @@ impl Question {
 pub enum Prediction {
     AmbP,
     NumP(f64),
-    DatP(NaiveDateTime)
+    DatP(NaiveDateTime),
 }
 
 impl Prediction {
     pub fn get_if_numeric(&self) -> Option<f64> {
         match self {
-            NumP(p) => { Some(*p) }
-            _ => None
+            NumP(p) => Some(*p),
+            _ => None,
         }
     }
 
     pub fn get_if_date(&self) -> Option<NaiveDateTime> {
         match self {
-            DatP(p) => { Some(*p) }
-            _ => None
+            DatP(p) => Some(*p),
+            _ => None,
         }
     }
 }
@@ -164,7 +200,16 @@ struct QuestionPossibilities {
 }
 
 #[derive(Serialize, Deserialize)]
-struct RangeQuestionScale {
-    min: f64,
-    max: f64,
+#[serde(untagged)]
+enum RangeQuestionScale {
+    NumericRangeQuestionScale {
+        min: f64,
+        max: f64,
+        deriv_ratio: f64,
+    },
+    DateRangeQuestionScale {
+        min: String,
+        max: String,
+        deriv_ratio: f64,
+    },
 }

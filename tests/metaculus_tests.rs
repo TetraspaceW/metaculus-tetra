@@ -89,8 +89,8 @@ fn test_logarithmic_range_question() {
 fn test_date_range_question() {
     let question = read_file("date_range_example");
 
-    let start_date = NaiveDateTime::parse_from_str("2021-01-15", "%Y-%m-%d").unwrap().timestamp() as f64;
-    let end_date = NaiveDateTime::parse_from_str("2025-01-01", "%Y-%m-%d").unwrap().timestamp() as f64;
+    let start_date = NaiveDate::parse_from_str("2021-01-15", "%Y-%m-%d").unwrap().and_hms(0,0,0).timestamp() as f64;
+    let end_date = NaiveDate::parse_from_str("2025-01-01", "%Y-%m-%d").unwrap().and_hms(0,0,0).timestamp() as f64;
 
     let community_date = NaiveDateTime::from_timestamp((0.27891 * (end_date - start_date) + start_date) as i64, 0);
 
@@ -102,8 +102,8 @@ fn test_date_range_question() {
 fn test_logarithmic_date_range_question() {
     let question = read_file("logarithmic_date_range_example");
 
-    let start_date = NaiveDateTime::parse_from_str("2020-03-27", "%Y-%m-%d").unwrap().timestamp() as f64;
-    let end_date = NaiveDateTime::parse_from_str("2200-01-04", "%Y-%m-%d").unwrap().timestamp() as f64;
+    let start_date = NaiveDate::parse_from_str("2020-03-27", "%Y-%m-%d").unwrap().and_hms(0,0,0).timestamp() as f64;
+    let end_date = NaiveDate::parse_from_str("2200-01-04", "%Y-%m-%d").unwrap().and_hms(0,0,0).timestamp() as f64;
 
     let community_date = NaiveDateTime::from_timestamp(((end_date / start_date).powf(0.70277) * start_date) as i64, 0);
 
