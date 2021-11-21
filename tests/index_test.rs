@@ -14,7 +14,7 @@ fn test_weighted_question() {
 }
 
 #[test]
-fn test_index() {
+fn test_binary_index() {
     let question_1 = read_q_from_file("probability_example");
     let question_2 = read_q_from_file("resolved_probability_example");
 
