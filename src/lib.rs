@@ -5,15 +5,15 @@
 
 pub mod index;
 
+use crate::MetaculusPredictionTimeseriesPoint::{NumericMPTP, RangeMPTP};
+use crate::Prediction::{AmbP, DatP, NumP};
+use crate::PredictionTimeseriesPoint::{NumericPTP, RangePTP};
+use crate::RangeQuestionScale::{DateRangeQuestionScale, NumericRangeQuestionScale};
 use chrono::{NaiveDate, NaiveDateTime};
 use log::info;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use crate::MetaculusPredictionTimeseriesPoint::{NumericMPTP, RangeMPTP};
-use crate::Prediction::{AmbP, DatP, NumP};
-use crate::PredictionTimeseriesPoint::{NumericPTP, RangePTP};
-use crate::RangeQuestionScale::{DateRangeQuestionScale, NumericRangeQuestionScale};
 
 ///
 /// An API client for retrieving Metaculus question data . Contains the domain (e.g. `www`,
@@ -97,6 +97,21 @@ pub struct Question {
 
 impl Question {
     ///
+    /// Converts a date in the format returned by Metaculus (`YYYY-MM-DD`) into a number of non-leap
+    /// seconds since midnight, January 1st, 1970, or `None` if the string is not a properly
+    /// formatted date.
+    ///
+    pub fn date_to_timestamp(date: &str) -> Option<f64> {
+        let date_format = "%Y-%m-%d";
+        Some(
+            NaiveDate::parse_from_str(date, date_format)
+                .ok()?
+                .and_hms(0, 0, 0)
+                .timestamp() as f64,
+        )
+    }
+
+    ///
     /// Returns the best prediction available (prioritising the actual resolution, then the
     /// Metaculus prediction, then the community prediction) for the question as a [Prediction], if
     /// the question has any predictions.
@@ -148,38 +163,14 @@ impl Question {
         Some(community_prediction)
     }
 
-    ///
-    /// Returns the Metaculus prediction, if it exists and is available.
-    ///
-    pub fn get_metaculus_prediction(&self) -> Option<Prediction> {
-        let metaculus_prediction = match self.metaculus_prediction.as_ref()? {
-            NumericMPTP { full } => NumP(*full),
-            RangeMPTP { full } => {
-                self.convert_range_prediction(full.q2)?
-            }
-        };
-
-        Some(metaculus_prediction)
-    }
-
     fn convert_range_prediction(&self, prediction: f64) -> Option<Prediction> {
         let scale = self.possibilities.scale.as_ref()?;
 
         match scale {
-            NumericRangeQuestionScale {
-                min,
-                max,
-                ..
-            } => Some(NumP(self.scale_range_prediction(
-                prediction,
-                *min,
-                *max,
-            ))),
-            DateRangeQuestionScale {
-                min,
-                max,
-                ..
-            } => {
+            NumericRangeQuestionScale { min, max, .. } => {
+                Some(NumP(self.scale_range_prediction(prediction, *min, *max)))
+            }
+            DateRangeQuestionScale { min, max, .. } => {
                 let min_ts = Question::date_to_timestamp(min)?;
                 let max_ts = Question::date_to_timestamp(max)?;
                 Some(DatP(NaiveDateTime::from_timestamp(
@@ -188,6 +179,18 @@ impl Question {
                 )))
             }
         }
+    }
+
+    ///
+    /// Returns the Metaculus prediction, if it exists and is available.
+    ///
+    pub fn get_metaculus_prediction(&self) -> Option<Prediction> {
+        let metaculus_prediction = match self.metaculus_prediction.as_ref()? {
+            NumericMPTP { full } => NumP(*full),
+            RangeMPTP { full } => self.convert_range_prediction(full.q2)?,
+        };
+
+        Some(metaculus_prediction)
     }
 
     fn scale_range_prediction(&self, prediction: f64, min: f64, max: f64) -> f64 {
@@ -214,31 +217,14 @@ impl Question {
 
     pub fn is_logarithmic(&self) -> bool {
         match self.possibilities.scale {
-            Some(NumericRangeQuestionScale { deriv_ratio, .. }) => {
-                deriv_ratio != 1.0 as f64
-            }
-            Some(DateRangeQuestionScale { deriv_ratio, .. }) => {
-                deriv_ratio != 1.0 as f64
-            }
-            None => { false }
+            Some(NumericRangeQuestionScale { deriv_ratio, .. }) => deriv_ratio != 1.0 as f64,
+            Some(DateRangeQuestionScale { deriv_ratio, .. }) => deriv_ratio != 1.0 as f64,
+            None => false,
         }
     }
 
     pub fn is_binary(&self) -> bool {
         self.possibilities.question_type == String::from("binary")
-    }
-
-    ///
-    /// Converts a date in the format returned by Metaculus (`YYYY-MM-DD`) into a number of non-leap
-    /// seconds since midnight, January 1st, 1970, or `None` if the string is not a properly
-    /// formatted date.
-    ///
-    pub fn date_to_timestamp(date: &str) -> Option<f64> {
-        let date_format = "%Y-%m-%d";
-        Some(NaiveDate::parse_from_str(date, date_format)
-            .ok()?
-            .and_hms(0, 0, 0)
-            .timestamp() as f64)
     }
 }
 
@@ -304,7 +290,7 @@ struct QuestionPossibilities {
     #[serde(rename = "type")]
     question_type: String,
     scale: Option<RangeQuestionScale>,
-    format: Option<String>
+    format: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
