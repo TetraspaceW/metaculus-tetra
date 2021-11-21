@@ -3,12 +3,12 @@
 //! [Repository](https://github.com/TetraspaceW/metaculus-tetra)
 //!
 
-use crate::Prediction::{AmbP, DatP, NumP};
 use chrono::{NaiveDate, NaiveDateTime};
 use log::info;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use crate::Prediction::{AmbP, DatP, NumP};
 
 pub struct Metaculus<'a> {
     domain: &'a str,
