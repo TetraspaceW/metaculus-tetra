@@ -3,6 +3,8 @@
 //! [Repository](https://github.com/TetraspaceW/metaculus-tetra)
 //!
 
+pub mod index;
+
 use chrono::{NaiveDate, NaiveDateTime};
 use log::info;
 use reqwest::blocking::Client;
@@ -81,7 +83,7 @@ impl Metaculus<'_> {
 ///
 /// Data on a single Metaculus question.
 ///
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Question {
     pub title_short: String,
     prediction_timeseries: Option<Vec<PredictionTimeseriesPoint>>,
@@ -244,7 +246,7 @@ impl Prediction {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 enum PredictionTimeseriesPoint {
     NumericPTP {
@@ -255,31 +257,32 @@ enum PredictionTimeseriesPoint {
     },
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 struct RangeCommunityPrediction {
     q2: f64,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 enum MetaculusPredictionTimeseriesPoint {
     NumericMPTP { full: f64 },
     RangeMPTP { full: RangeMetaculusPrediction },
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 struct RangeMetaculusPrediction {
     q2: f64,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 struct QuestionPossibilities {
     #[serde(rename = "type")]
     question_type: String,
     scale: Option<RangeQuestionScale>,
+    format: Option<String>
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 enum RangeQuestionScale {
     NumericRangeQuestionScale {
