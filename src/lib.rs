@@ -10,31 +10,61 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use crate::Prediction::{AmbP, DatP, NumP};
 
+///
+/// An API client for retrieving Metaculus question data . Contains the domain (e.g. `www`,
+/// `pandemic`, `ai`) of the Metaculus instance and the blocking reqwest client.
+///
+/// # Example
+///
+/// ``` rust
+/// use metaculustetra::Metaculus;
+/// use reqwest::blocking::Client;
+/// // Standard Metaculus client, accesses https://www.metaculus.com
+/// let m = Metaculus::standard();
+/// // Pandemic Metaculus client, accesses https://pandemic.metaculus.com
+/// let mp = Metaculus { domain: "pandemic", client: Client::new() };
+/// ```
 pub struct Metaculus<'a> {
-    domain: &'a str,
-    client: Client,
+    pub domain: &'a str,
+    pub client: Client,
 }
 
 impl Metaculus<'_> {
-    pub fn new() -> Metaculus<'static> {
+    pub fn standard() -> Metaculus<'static> {
         Metaculus {
             domain: "www",
             client: Client::new(),
         }
     }
 
+    ///
+    /// Returns the numeric prediction for the question `id` if it is a numerical question, and
+    /// `None` otherwise.
+    ///
     pub fn get_numeric_prediction_for(&self, id: &str) -> Option<f64> {
         self.get_prediction_for(id)?.get_if_numeric()
     }
 
+    ///
+    /// Returns the date prediction for the question `id` if it is a numerical question, and `None`
+    /// otherwise.
+    ///
     pub fn get_date_prediction_for(&self, id: &str) -> Option<NaiveDateTime> {
         self.get_prediction_for(id)?.get_if_date()
     }
 
+    ///
+    /// Returns the best prediction available (prioritising the actual resolution, then the Metaculus
+    /// prediction, then the community prediction) far the question with id `id` as a [Prediction],
+    /// if the question exists and has any predictions.
+    ///
     pub fn get_prediction_for(&self, id: &str) -> Option<Prediction> {
         self.get_question(id)?.get_best_prediction()
     }
 
+    ///
+    /// Returns the question with id `id` as a [Question] if it exists.
+    ///
     pub fn get_question(&self, id: &str) -> Option<Question> {
         let url = format!(
             "https://{}.metaculus.com/api2/questions/{}",
@@ -43,10 +73,14 @@ impl Metaculus<'_> {
         let response = self.client.get(url).send().ok()?.text().ok()?;
         let question_response = serde_json::from_str(&response).ok()?;
         info!("Question id {} retrieved successfully.", id);
+
         return Some(question_response);
     }
 }
 
+///
+/// Data on a single Metaculus question.
+///
 #[derive(Serialize, Deserialize)]
 pub struct Question {
     pub title_short: String,
@@ -57,6 +91,32 @@ pub struct Question {
 }
 
 impl Question {
+    ///
+    /// Returns the best prediction available (prioritising the actual resolution, then the
+    /// Metaculus prediction, then the community prediction) for the question as a [Prediction], if
+    /// the question has any predictions.
+    ///
+    /// # Example
+    /// ```rust
+    /// use metaculustetra::Prediction::NumP;
+    /// use std::fs::File;
+    /// use std::io::BufReader;
+    /// use metaculustetra::Question;
+    ///
+    /// // Load .json response for a file
+    /// let file = File::open("tests/resolved_probability_example.json").unwrap();
+    /// let reader = BufReader::new(file);
+    /// let question: Question = serde_json::from_reader(reader).unwrap();
+    /// // The question resolved at yes, which is 1.0 (100%).
+    /// assert_eq!(question.get_resolution(), Some(NumP(1.0)));
+    /// // The community median prediction was 99%.
+    /// assert_eq!(question.get_community_prediction(), Some(NumP(0.99)));
+    /// // The Metaculus prediction was 98.7% with a few more decimal places.
+    /// assert_eq!(question.get_metaculus_prediction(), Some(NumP(0.986684322309624)));
+    /// // The best available prediction is the resolution, 100%.
+    /// assert_eq!(question.get_best_prediction(), Some(NumP(1.0)));
+    /// ```
+    ///
     pub fn get_best_prediction(&self) -> Option<Prediction> {
         return match self.get_resolution() {
             None => match self.get_metaculus_prediction() {
@@ -67,6 +127,9 @@ impl Question {
         };
     }
 
+    ///
+    /// Returns the community median prediction, if it exists.
+    ///
     pub fn get_community_prediction(&self) -> Option<Prediction> {
         let community_prediction = match self.prediction_timeseries.as_ref()?.last()? {
             PredictionTimeseriesPoint::NumericPTP {
@@ -80,6 +143,9 @@ impl Question {
         Some(community_prediction)
     }
 
+    ///
+    /// Returns the Metaculus prediction, if it exists and is available.
+    ///
     pub fn get_metaculus_prediction(&self) -> Option<Prediction> {
         let metaculus_prediction = match self.metaculus_prediction.as_ref()? {
             MetaculusPredictionTimeseriesPoint::NumericMPTP { full } => NumP(*full),
@@ -135,6 +201,9 @@ impl Question {
         };
     }
 
+    ///
+    /// Returns the question resolution, if it exists. This will be a [Prediction::AmbP]
+    ///
     pub fn get_resolution(&self) -> Option<Prediction> {
         return if self.resolution? == -1.0 {
             Some(AmbP)
@@ -146,10 +215,16 @@ impl Question {
     }
 }
 
+///
+/// An aggregated overall prediction on a Metaculus question.
+///
 #[derive(PartialEq, Debug)]
 pub enum Prediction {
+    /// Represents an Ambiguous resolution.
     AmbP,
+    /// Represents a numeric prediction, either a probability (0.0 - 1.0) or continuous.
     NumP(f64),
+    /// Represents a date prediction.
     DatP(NaiveDateTime),
 }
 
