@@ -3,12 +3,17 @@
 //! [Repository](https://github.com/TetraspaceW/metaculus-tetra)
 //!
 
+pub mod index;
+
 use chrono::{NaiveDate, NaiveDateTime};
 use log::info;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use crate::MetaculusPredictionTimeseriesPoint::{NumericMPTP, RangeMPTP};
 use crate::Prediction::{AmbP, DatP, NumP};
+use crate::PredictionTimeseriesPoint::{NumericPTP, RangePTP};
+use crate::RangeQuestionScale::{DateRangeQuestionScale, NumericRangeQuestionScale};
 
 ///
 /// An API client for retrieving Metaculus question data . Contains the domain (e.g. `www`,
@@ -81,7 +86,7 @@ impl Metaculus<'_> {
 ///
 /// Data on a single Metaculus question.
 ///
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Question {
     pub title_short: String,
     prediction_timeseries: Option<Vec<PredictionTimeseriesPoint>>,
@@ -103,7 +108,7 @@ impl Question {
     /// use std::io::BufReader;
     /// use metaculustetra::Question;
     ///
-    /// // Load .json response for a file
+    /// // Load .json response from a file
     /// let file = File::open("tests/resolved_probability_example.json").unwrap();
     /// let reader = BufReader::new(file);
     /// let question: Question = serde_json::from_reader(reader).unwrap();
@@ -132,10 +137,10 @@ impl Question {
     ///
     pub fn get_community_prediction(&self) -> Option<Prediction> {
         let community_prediction = match self.prediction_timeseries.as_ref()?.last()? {
-            PredictionTimeseriesPoint::NumericPTP {
+            NumericPTP {
                 community_prediction,
             } => NumP(*community_prediction),
-            PredictionTimeseriesPoint::RangePTP {
+            RangePTP {
                 community_prediction,
             } => self.convert_range_prediction(community_prediction.q2)?,
         };
@@ -148,8 +153,8 @@ impl Question {
     ///
     pub fn get_metaculus_prediction(&self) -> Option<Prediction> {
         let metaculus_prediction = match self.metaculus_prediction.as_ref()? {
-            MetaculusPredictionTimeseriesPoint::NumericMPTP { full } => NumP(*full),
-            MetaculusPredictionTimeseriesPoint::RangeMPTP { full } => {
+            NumericMPTP { full } => NumP(*full),
+            RangeMPTP { full } => {
                 self.convert_range_prediction(full.q2)?
             }
         };
@@ -161,48 +166,41 @@ impl Question {
         let scale = self.possibilities.scale.as_ref()?;
 
         match scale {
-            RangeQuestionScale::NumericRangeQuestionScale {
+            NumericRangeQuestionScale {
                 min,
                 max,
-                deriv_ratio,
+                ..
             } => Some(NumP(self.scale_range_prediction(
                 prediction,
                 *min,
                 *max,
-                *deriv_ratio,
             ))),
-            RangeQuestionScale::DateRangeQuestionScale {
+            DateRangeQuestionScale {
                 min,
                 max,
-                deriv_ratio,
+                ..
             } => {
-                let date_format = "%Y-%m-%d";
-                let min_ts = NaiveDate::parse_from_str(min, date_format)
-                    .ok()?
-                    .and_hms(0, 0, 0)
-                    .timestamp() as f64;
-                let max_ts = NaiveDate::parse_from_str(max, date_format)
-                    .ok()?
-                    .and_hms(0, 0, 0)
-                    .timestamp() as f64;
+                let min_ts = Question::date_to_timestamp(min)?;
+                let max_ts = Question::date_to_timestamp(max)?;
                 Some(DatP(NaiveDateTime::from_timestamp(
-                    self.scale_range_prediction(prediction, min_ts, max_ts, *deriv_ratio) as i64,
+                    self.scale_range_prediction(prediction, min_ts, max_ts) as i64,
                     0,
                 )))
             }
         }
     }
 
-    fn scale_range_prediction(&self, prediction: f64, min: f64, max: f64, deriv_ratio: f64) -> f64 {
-        return if deriv_ratio == 1.0 {
-            prediction * (max - min) + min
-        } else {
+    fn scale_range_prediction(&self, prediction: f64, min: f64, max: f64) -> f64 {
+        return if self.is_logarithmic() {
             (max / min).powf(prediction) * min
+        } else {
+            prediction * (max - min) + min
         };
     }
 
     ///
-    /// Returns the question resolution, if it exists. This will be a [Prediction::AmbP]
+    /// Returns the question resolution, if it exists. This will be a [Prediction::AmbP] if the
+    /// question has resolved ambiguously.
     ///
     pub fn get_resolution(&self) -> Option<Prediction> {
         return if self.resolution? == -1.0 {
@@ -213,6 +211,35 @@ impl Question {
             Some(NumP(self.resolution?))
         };
     }
+
+    pub fn is_logarithmic(&self) -> bool {
+        match self.possibilities.scale {
+            Some(NumericRangeQuestionScale { deriv_ratio, .. }) => {
+                deriv_ratio != 1.0 as f64
+            }
+            Some(DateRangeQuestionScale { deriv_ratio, .. }) => {
+                deriv_ratio != 1.0 as f64
+            }
+            None => { false }
+        }
+    }
+
+    pub fn is_binary(&self) -> bool {
+        self.possibilities.question_type == String::from("binary")
+    }
+
+    ///
+    /// Converts a date in the format returned by Metaculus (`YYYY-MM-DD`) into a number of non-leap
+    /// seconds since midnight, January 1st, 1970, or `None` if the string is not a properly
+    /// formatted date.
+    ///
+    pub fn date_to_timestamp(date: &str) -> Option<f64> {
+        let date_format = "%Y-%m-%d";
+        Some(NaiveDate::parse_from_str(date, date_format)
+            .ok()?
+            .and_hms(0, 0, 0)
+            .timestamp() as f64)
+    }
 }
 
 ///
@@ -222,7 +249,7 @@ impl Question {
 pub enum Prediction {
     /// Represents an Ambiguous resolution.
     AmbP,
-    /// Represents a numeric prediction, either a probability (0.0 - 1.0) or continuous.
+    /// Represents a numeric prediction, either a probability (from 0.0 to 1.0) or continuous.
     NumP(f64),
     /// Represents a date prediction.
     DatP(NaiveDateTime),
@@ -244,7 +271,7 @@ impl Prediction {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 enum PredictionTimeseriesPoint {
     NumericPTP {
@@ -255,31 +282,32 @@ enum PredictionTimeseriesPoint {
     },
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 struct RangeCommunityPrediction {
     q2: f64,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 enum MetaculusPredictionTimeseriesPoint {
     NumericMPTP { full: f64 },
     RangeMPTP { full: RangeMetaculusPrediction },
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 struct RangeMetaculusPrediction {
     q2: f64,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 struct QuestionPossibilities {
     #[serde(rename = "type")]
     question_type: String,
     scale: Option<RangeQuestionScale>,
+    format: Option<String>
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 enum RangeQuestionScale {
     NumericRangeQuestionScale {
