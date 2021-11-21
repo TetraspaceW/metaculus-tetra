@@ -1,3 +1,8 @@
+//! A library for interacting with Metaculus.
+//!
+//! [Repository](https://github.com/TetraspaceW/metaculus-tetra)
+//!
+
 use crate::Prediction::{AmbP, DatP, NumP};
 use chrono::{NaiveDate, NaiveDateTime};
 use log::info;

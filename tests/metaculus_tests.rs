@@ -3,7 +3,7 @@ use std::io::BufReader;
 use chrono::{NaiveDate, NaiveDateTime};
 
 use metaculustetra::Prediction::{AmbP, DatP, NumP};
-use metaculustetra::*;
+use metaculustetra::Question;
 
 fn read_file(filename: &str) -> Question {
     let file = File::open(format!("tests/{}.json", filename)).unwrap();
