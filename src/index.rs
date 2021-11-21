@@ -1,5 +1,7 @@
+use chrono::NaiveDateTime;
 use crate::RangeQuestionScale::{DateRangeQuestionScale, NumericRangeQuestionScale};
 use crate::{AmbP, DatP, NumP, Question};
+use crate::date_utils::DateUtils;
 
 pub struct Index {
     pub questions: Vec<WeightedQuestion>,
@@ -14,7 +16,11 @@ pub struct WeightedQuestion {
 
 impl Index {
     pub fn get_index_value(&self) -> f64 {
-        self.questions.iter().map(|q| q.get_value()).sum::<f64>()
+        self.get_index_value_before(NaiveDateTime::latest_prediction_date())
+    }
+
+    pub fn get_index_value_before(&self, date: NaiveDateTime) -> f64 {
+        self.questions.iter().map(|q| q.get_value_before(date)).sum::<f64>()
     }
 }
 
@@ -49,7 +55,7 @@ impl WeightedQuestion {
             question: question.clone(),
             weight,
             zero: match question.possibilities.scale.as_ref()? {
-                DateRangeQuestionScale { min, .. } => Question::date_to_timestamp(min)?,
+                DateRangeQuestionScale { min, .. } => NaiveDateTime::date_to_timestamp(min)?,
                 _ => None?,
             },
             linearise_if_log: true,
@@ -57,7 +63,11 @@ impl WeightedQuestion {
     }
 
     pub fn get_value(&self) -> f64 {
-        match self.question.get_best_prediction() {
+        self.get_value_before(NaiveDateTime::latest_prediction_date())
+    }
+
+    pub fn get_value_before(&self, date: NaiveDateTime) -> f64 {
+        match self.question.get_best_prediction_before(date) {
             None => 0.0,
             Some(p) => match p {
                 AmbP => 0.0,

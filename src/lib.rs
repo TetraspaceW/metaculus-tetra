@@ -4,16 +4,18 @@
 //!
 
 pub mod index;
+mod date_utils;
 
 use crate::MetaculusPredictionTimeseriesPoint::{NumericMPTP, RangeMPTP};
 use crate::Prediction::{AmbP, DatP, NumP};
 use crate::PredictionTimeseriesPoint::{NumericPTP, RangePTP};
 use crate::RangeQuestionScale::{DateRangeQuestionScale, NumericRangeQuestionScale};
-use chrono::{NaiveDate, NaiveDateTime, Utc};
+use chrono::NaiveDateTime;
 use log::info;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use crate::date_utils::DateUtils;
 
 ///
 /// An API client for retrieving Metaculus question data . Contains the domain (e.g. `www`,
@@ -98,21 +100,6 @@ pub struct Question {
 
 impl Question {
     ///
-    /// Converts a date in the format returned by Metaculus (`YYYY-MM-DD`) into a number of non-leap
-    /// seconds since midnight, January 1st, 1970, or `None` if the string is not a properly
-    /// formatted date.
-    ///
-    pub fn date_to_timestamp(date: &str) -> Option<f64> {
-        let date_format = "%Y-%m-%d";
-        Some(
-            NaiveDate::parse_from_str(date, date_format)
-                .ok()?
-                .and_hms(0, 0, 0)
-                .timestamp() as f64,
-        )
-    }
-
-    ///
     /// Returns the best prediction available (prioritising the actual resolution, then the
     /// Metaculus prediction, then the community prediction) for the question as a [Prediction], if
     /// the question has any predictions.
@@ -139,9 +126,13 @@ impl Question {
     /// ```
     ///
     pub fn get_best_prediction(&self) -> Option<Prediction> {
-        return match self.get_resolution() {
-            None => match self.get_metaculus_prediction() {
-                None => self.get_community_prediction(),
+        self.get_best_prediction_before(NaiveDateTime::latest_prediction_date())
+    }
+
+    pub fn get_best_prediction_before(&self, date: NaiveDateTime) -> Option<Prediction> {
+        return match self.get_resolution_before(date) {
+            None => match self.get_metaculus_prediction_before(date) {
+                None => self.get_community_prediction_before(date),
                 mp => mp,
             },
             r => r,
@@ -152,14 +143,14 @@ impl Question {
     /// Returns the community median prediction, if it exists.
     ///
     pub fn get_community_prediction(&self) -> Option<Prediction> {
-        self.get_community_prediction_before(Utc::now().naive_utc())
+        self.get_community_prediction_before(NaiveDateTime::latest_prediction_date())
     }
 
     ///
     /// Returns the Metaculus prediction, if it exists and is available.
     ///
     pub fn get_metaculus_prediction(&self) -> Option<Prediction> {
-        self.get_metaculus_prediction_before(Utc::now().naive_utc())
+        self.get_metaculus_prediction_before(NaiveDateTime::latest_prediction_date())
     }
 
     fn convert_range_prediction(&self, prediction: f64) -> Option<Prediction> {
@@ -170,8 +161,8 @@ impl Question {
                 Some(NumP(self.scale_range_prediction(prediction, *min, *max)))
             }
             DateRangeQuestionScale { min, max, .. } => {
-                let min_ts = Question::date_to_timestamp(min)?;
-                let max_ts = Question::date_to_timestamp(max)?;
+                let min_ts = NaiveDateTime::date_to_timestamp(min)?;
+                let max_ts = NaiveDateTime::date_to_timestamp(max)?;
                 Some(DatP(NaiveDateTime::from_timestamp(
                     self.scale_range_prediction(prediction, min_ts, max_ts) as i64,
                     0,
@@ -245,7 +236,11 @@ impl Question {
     }
 
     fn get_resolution_before(&self, date: NaiveDateTime) -> Option<Prediction> {
-        None
+        if NaiveDateTime::parse_from_str(&*self.resolve_time.as_ref()?, "%Y-%m-%dT%H:%M:%SZ").ok()? <= date {
+            self.get_resolution()
+        } else {
+            None
+        }
     }
 }
 
