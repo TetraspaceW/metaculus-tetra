@@ -173,3 +173,19 @@ fn test_unrevealed_question() {
     assert_eq!(question.get_best_prediction().unwrap(), NumP(0.3));
     assert_eq!(question.get_community_prediction().unwrap(), NumP(0.3));
 }
+
+#[test]
+fn test_get_if() {
+    let ambiguous_prediction = AmbP;
+    let date_prediction = DatP(NaiveDate::from_ymd(1954,03,02).and_hms(0,0,0));
+    let numerical_prediction = NumP(42.0);
+
+    assert_eq!(ambiguous_prediction.get_if_numeric(), None);
+    assert_eq!(ambiguous_prediction.get_if_date(), None);
+
+    assert_eq!(date_prediction.get_if_numeric(), None);
+    assert_eq!(date_prediction.get_if_date(), Some(NaiveDate::from_ymd(1954,03,02).and_hms(0,0,0)));
+
+    assert_eq!(numerical_prediction.get_if_numeric(), Some(42.0));
+    assert_eq!(numerical_prediction.get_if_date(), None);
+}

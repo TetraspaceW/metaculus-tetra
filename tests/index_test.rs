@@ -28,3 +28,23 @@ fn test_binary_index() {
 
     assert_eq!(index.get_index_value(), 2.3);
 }
+
+#[test]
+fn test_continuous_index() {
+    let question_1 = read_q_from_file("resolved_probability_example");
+    let question_2 = read_q_from_file("range_example");
+    let question_3 = read_q_from_file("resolved_range_example");
+
+    let index = Index {
+        questions: vec![
+            WeightedQuestion::create_from_binary(&question_1, 2.0).unwrap(),
+            WeightedQuestion::create_from_range(&question_2, 10.0).unwrap(),
+            WeightedQuestion::create_from_range(&question_3, 0.1).unwrap(),
+        ]
+    };
+
+    assert_eq!(index.questions[0].get_value(), 2.0);
+    assert_eq!(index.questions[1].get_value(), 1.132);
+    assert_eq!(index.questions[2].get_value(), 2.2);
+    assert_eq!(index.get_index_value(), 2.0 + 1.132 + 2.2)
+}

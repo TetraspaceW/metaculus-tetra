@@ -20,12 +20,16 @@ impl Index {
 
 impl WeightedQuestion {
     pub fn create_from_binary(question: &Question, weight: f64) -> Option<WeightedQuestion> {
-        Some(WeightedQuestion {
-            question: question.clone(),
-            weight,
-            zero: 0.0,
-            linearise_if_log: false,
-        })
+        if question.is_binary() {
+            Some(WeightedQuestion {
+                question: question.clone(),
+                weight,
+                zero: 0.0,
+                linearise_if_log: false,
+            })
+        } else {
+            None
+        }
     }
 
     pub fn create_from_range(question: &Question, weight: f64) -> Option<WeightedQuestion> {

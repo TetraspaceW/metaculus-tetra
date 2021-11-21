@@ -224,6 +224,10 @@ impl Question {
         }
     }
 
+    pub fn is_binary(&self) -> bool {
+        self.possibilities.question_type == String::from("binary")
+    }
+
     ///
     /// Converts a date in the format returned by Metaculus (`YYYY-MM-DD`) into a number of non-leap
     /// seconds since midnight, January 1st, 1970, or `None` if the string is not a properly
@@ -245,7 +249,7 @@ impl Question {
 pub enum Prediction {
     /// Represents an Ambiguous resolution.
     AmbP,
-    /// Represents a numeric prediction, either a probability (0.0 - 1.0) or continuous.
+    /// Represents a numeric prediction, either a probability (from 0.0 to 1.0) or continuous.
     NumP(f64),
     /// Represents a date prediction.
     DatP(NaiveDateTime),
