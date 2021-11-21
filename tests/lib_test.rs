@@ -192,3 +192,30 @@ fn test_get_if() {
     assert_eq!(numerical_prediction.get_if_numeric(), Some(42.0));
     assert_eq!(numerical_prediction.get_if_date(), None);
 }
+
+#[test]
+fn test_get_community_prediction_before() {
+    let question = read_q_from_file("probability_example");
+    assert_eq!(
+        question.get_community_prediction_before(NaiveDate::from_ymd(1945, 1, 1).and_hms(0, 0, 0)),
+        None
+    );
+    assert_eq!(
+        question
+            .get_community_prediction_before(NaiveDate::from_ymd(2018, 10, 12).and_hms(0, 0, 0))
+            .unwrap(),
+        NumP(0.2)
+    );
+    assert_eq!(
+        question
+            .get_community_prediction_before(NaiveDate::from_ymd(2019, 3, 6).and_hms(0, 0, 0))
+            .unwrap(),
+        NumP(0.38)
+    );
+    assert_eq!(
+        question
+            .get_community_prediction_before(NaiveDate::from_ymd(2100, 1, 1).and_hms(0, 0, 0))
+            .unwrap(),
+        NumP(0.2)
+    );
+}

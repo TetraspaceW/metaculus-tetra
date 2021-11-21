@@ -9,7 +9,7 @@ use crate::MetaculusPredictionTimeseriesPoint::{NumericMPTP, RangeMPTP};
 use crate::Prediction::{AmbP, DatP, NumP};
 use crate::PredictionTimeseriesPoint::{NumericPTP, RangePTP};
 use crate::RangeQuestionScale::{DateRangeQuestionScale, NumericRangeQuestionScale};
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::{NaiveDate, NaiveDateTime, Utc};
 use log::info;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
@@ -90,9 +90,10 @@ impl Metaculus<'_> {
 pub struct Question {
     pub title_short: String,
     prediction_timeseries: Option<Vec<PredictionTimeseriesPoint>>,
-    metaculus_prediction: Option<MetaculusPredictionTimeseriesPoint>,
+    metaculus_prediction: Option<MetaculusPrediction>,
     resolution: Option<f64>,
     possibilities: QuestionPossibilities,
+    resolve_time: Option<String>
 }
 
 impl Question {
@@ -151,16 +152,14 @@ impl Question {
     /// Returns the community median prediction, if it exists.
     ///
     pub fn get_community_prediction(&self) -> Option<Prediction> {
-        let community_prediction = match self.prediction_timeseries.as_ref()?.last()? {
-            NumericPTP {
-                community_prediction,
-            } => NumP(*community_prediction),
-            RangePTP {
-                community_prediction,
-            } => self.convert_range_prediction(community_prediction.q2)?,
-        };
+        self.get_community_prediction_before(Utc::now().naive_utc())
+    }
 
-        Some(community_prediction)
+    ///
+    /// Returns the Metaculus prediction, if it exists and is available.
+    ///
+    pub fn get_metaculus_prediction(&self) -> Option<Prediction> {
+        self.get_metaculus_prediction_before(Utc::now().naive_utc())
     }
 
     fn convert_range_prediction(&self, prediction: f64) -> Option<Prediction> {
@@ -179,18 +178,6 @@ impl Question {
                 )))
             }
         }
-    }
-
-    ///
-    /// Returns the Metaculus prediction, if it exists and is available.
-    ///
-    pub fn get_metaculus_prediction(&self) -> Option<Prediction> {
-        let metaculus_prediction = match self.metaculus_prediction.as_ref()? {
-            NumericMPTP { full } => NumP(*full),
-            RangeMPTP { full } => self.convert_range_prediction(full.q2)?,
-        };
-
-        Some(metaculus_prediction)
     }
 
     fn scale_range_prediction(&self, prediction: f64, min: f64, max: f64) -> f64 {
@@ -226,6 +213,40 @@ impl Question {
     pub fn is_binary(&self) -> bool {
         self.possibilities.question_type == String::from("binary")
     }
+
+    pub fn get_community_prediction_before(&self, date: NaiveDateTime) -> Option<Prediction> {
+        let mut predictions = self.prediction_timeseries.as_ref()?.clone();
+        predictions.reverse();
+        match predictions
+            .iter()
+            .find(|it| it.timestamp() <= date.timestamp() as f64)?
+        {
+            NumericPTP {
+                community_prediction,
+                ..
+            } => Some(NumP(*community_prediction)),
+            RangePTP {
+                community_prediction,
+                ..
+            } => self.convert_range_prediction(community_prediction.q2),
+        }
+    }
+
+    pub fn get_metaculus_prediction_before(&self, date: NaiveDateTime) -> Option<Prediction> {
+        let mut metaculus_predictions = self.metaculus_prediction.as_ref()?.history.clone();
+        metaculus_predictions.reverse();
+        match metaculus_predictions
+            .iter()
+            .find(|it| it.timestamp() <= date.timestamp() as f64)?
+        {
+            NumericMPTP { x, .. } => Some(NumP(*x)),
+            RangeMPTP { x, .. } => self.convert_range_prediction(x.q2),
+        }
+    }
+
+    fn get_resolution_before(&self, date: NaiveDateTime) -> Option<Prediction> {
+        None
+    }
 }
 
 ///
@@ -257,27 +278,52 @@ impl Prediction {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(untagged)]
 enum PredictionTimeseriesPoint {
     NumericPTP {
+        t: f64,
         community_prediction: f64,
     },
     RangePTP {
+        t: f64,
         community_prediction: RangeCommunityPrediction,
     },
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+impl PredictionTimeseriesPoint {
+    fn timestamp(&self) -> f64 {
+        match self {
+            NumericPTP { t, .. } => *t,
+            RangePTP { t, .. } => *t,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 struct RangeCommunityPrediction {
     q2: f64,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
+struct MetaculusPrediction {
+    history: Vec<MetaculusPredictionTimeseriesPoint>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 enum MetaculusPredictionTimeseriesPoint {
-    NumericMPTP { full: f64 },
-    RangeMPTP { full: RangeMetaculusPrediction },
+    NumericMPTP { t: f64, x: f64 },
+    RangeMPTP { t: f64, x: RangeMetaculusPrediction },
+}
+
+impl MetaculusPredictionTimeseriesPoint {
+    fn timestamp(&self) -> f64 {
+        match self {
+            NumericMPTP { t, .. } => *t,
+            RangeMPTP { t, .. } => *t,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
