@@ -1,6 +1,6 @@
+use metaculustetra::Question;
 use std::fs::File;
 use std::io::BufReader;
-use metaculustetra::Question;
 
 pub fn read_q_from_file(filename: &str) -> Question {
     let file = File::open(format!("tests/{}.json", filename)).unwrap();

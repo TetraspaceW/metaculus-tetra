@@ -3,20 +3,22 @@
 //! [Repository](https://github.com/TetraspaceW/metaculus-tetra)
 //!
 
+mod date_utils;
 pub mod index;
 
-use chrono::{NaiveDate, NaiveDateTime};
-use log::info;
-use reqwest::blocking::Client;
-use serde::{Deserialize, Serialize};
-use serde_json;
+use crate::date_utils::DateUtils;
 use crate::MetaculusPredictionTimeseriesPoint::{NumericMPTP, RangeMPTP};
 use crate::Prediction::{AmbP, DatP, NumP};
 use crate::PredictionTimeseriesPoint::{NumericPTP, RangePTP};
 use crate::RangeQuestionScale::{DateRangeQuestionScale, NumericRangeQuestionScale};
+use chrono::NaiveDateTime;
+use log::info;
+use reqwest::blocking::Client;
+use serde::{Deserialize, Serialize};
+use serde_json;
 
 ///
-/// An API client for retrieving Metaculus question data . Contains the domain (e.g. `www`,
+/// An API client for retrieving Metaculus question data. Contains the domain (e.g. `www`,
 /// `pandemic`, `ai`) of the Metaculus instance and the blocking reqwest client.
 ///
 /// # Example
@@ -24,17 +26,25 @@ use crate::RangeQuestionScale::{DateRangeQuestionScale, NumericRangeQuestionScal
 /// ``` rust
 /// use metaculustetra::Metaculus;
 /// use reqwest::blocking::Client;
-/// // Standard Metaculus client, accesses https://www.metaculus.com
+/// // Standard Metaculus client, accesses <https://www.metaculus.com>
 /// let m = Metaculus::standard();
-/// // Pandemic Metaculus client, accesses https://pandemic.metaculus.com
+/// // Pandemic Metaculus client, accesses <https://pandemic.metaculus.com>
 /// let mp = Metaculus { domain: "pandemic", client: Client::new() };
 /// ```
 pub struct Metaculus<'a> {
+    ///
+    /// The Metaculus [domain](https://www.metaculus.com/news/2019/08/04/introducing-the-domain-system/)
+    /// to retrieve questions from, such as `www` (Metaculus Prime), `pandemic`, or `ai`
+    ///
     pub domain: &'a str,
     pub client: Client,
 }
 
 impl Metaculus<'_> {
+    ///
+    /// Returns a default Metaculus instance that retrieves questions from <https://www.metaculus.com>
+    /// with a newly created [reqwest::blocking::Client] instance.
+    ///
     pub fn standard() -> Metaculus<'static> {
         Metaculus {
             domain: "www",
@@ -88,11 +98,13 @@ impl Metaculus<'_> {
 ///
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Question {
+    /// The title of the question displayed on Metaculus.
     pub title_short: String,
     prediction_timeseries: Option<Vec<PredictionTimeseriesPoint>>,
-    metaculus_prediction: Option<MetaculusPredictionTimeseriesPoint>,
+    metaculus_prediction: Option<MetaculusPrediction>,
     resolution: Option<f64>,
     possibilities: QuestionPossibilities,
+    resolve_time: Option<String>,
 }
 
 impl Question {
@@ -123,9 +135,18 @@ impl Question {
     /// ```
     ///
     pub fn get_best_prediction(&self) -> Option<Prediction> {
-        return match self.get_resolution() {
-            None => match self.get_metaculus_prediction() {
-                None => self.get_community_prediction(),
+        self.get_best_prediction_before(NaiveDateTime::latest_prediction_date())
+    }
+
+    ///
+    /// Returns the best prediction available as of the given `date` (prioritising the actual
+    /// resolution, then the Metaculus prediction, then the community prediction) for the question
+    /// as a [Prediction], if the question has any predictions from before that date.
+    ///
+    pub fn get_best_prediction_before(&self, date: NaiveDateTime) -> Option<Prediction> {
+        return match self.get_resolution_before(date) {
+            None => match self.get_metaculus_prediction_before(date) {
+                None => self.get_community_prediction_before(date),
                 mp => mp,
             },
             r => r,
@@ -136,52 +157,26 @@ impl Question {
     /// Returns the community median prediction, if it exists.
     ///
     pub fn get_community_prediction(&self) -> Option<Prediction> {
-        let community_prediction = match self.prediction_timeseries.as_ref()?.last()? {
-            NumericPTP {
-                community_prediction,
-            } => NumP(*community_prediction),
-            RangePTP {
-                community_prediction,
-            } => self.convert_range_prediction(community_prediction.q2)?,
-        };
-
-        Some(community_prediction)
+        self.get_community_prediction_before(NaiveDateTime::latest_prediction_date())
     }
 
     ///
     /// Returns the Metaculus prediction, if it exists and is available.
     ///
     pub fn get_metaculus_prediction(&self) -> Option<Prediction> {
-        let metaculus_prediction = match self.metaculus_prediction.as_ref()? {
-            NumericMPTP { full } => NumP(*full),
-            RangeMPTP { full } => {
-                self.convert_range_prediction(full.q2)?
-            }
-        };
-
-        Some(metaculus_prediction)
+        self.get_metaculus_prediction_before(NaiveDateTime::latest_prediction_date())
     }
 
     fn convert_range_prediction(&self, prediction: f64) -> Option<Prediction> {
         let scale = self.possibilities.scale.as_ref()?;
 
         match scale {
-            NumericRangeQuestionScale {
-                min,
-                max,
-                ..
-            } => Some(NumP(self.scale_range_prediction(
-                prediction,
-                *min,
-                *max,
-            ))),
-            DateRangeQuestionScale {
-                min,
-                max,
-                ..
-            } => {
-                let min_ts = Question::date_to_timestamp(min)?;
-                let max_ts = Question::date_to_timestamp(max)?;
+            NumericRangeQuestionScale { min, max, .. } => {
+                Some(NumP(self.scale_range_prediction(prediction, *min, *max)))
+            }
+            DateRangeQuestionScale { min, max, .. } => {
+                let min_ts = NaiveDateTime::date_to_timestamp(min)?;
+                let max_ts = NaiveDateTime::date_to_timestamp(max)?;
                 Some(DatP(NaiveDateTime::from_timestamp(
                     self.scale_range_prediction(prediction, min_ts, max_ts) as i64,
                     0,
@@ -212,33 +207,65 @@ impl Question {
         };
     }
 
+    /// Returns `true` iff the question is continuous and has a logarithmic scale.
     pub fn is_logarithmic(&self) -> bool {
         match self.possibilities.scale {
-            Some(NumericRangeQuestionScale { deriv_ratio, .. }) => {
-                deriv_ratio != 1.0 as f64
-            }
-            Some(DateRangeQuestionScale { deriv_ratio, .. }) => {
-                deriv_ratio != 1.0 as f64
-            }
-            None => { false }
+            Some(NumericRangeQuestionScale { deriv_ratio, .. }) => deriv_ratio != 1.0 as f64,
+            Some(DateRangeQuestionScale { deriv_ratio, .. }) => deriv_ratio != 1.0 as f64,
+            None => false,
         }
     }
 
+    /// Returns `true` iff the question is a binary probability question.
     pub fn is_binary(&self) -> bool {
         self.possibilities.question_type == String::from("binary")
     }
 
     ///
-    /// Converts a date in the format returned by Metaculus (`YYYY-MM-DD`) into a number of non-leap
-    /// seconds since midnight, January 1st, 1970, or `None` if the string is not a properly
-    /// formatted date.
+    /// Returns the community median prediction sa it was on the given `date`, if it existed.
     ///
-    pub fn date_to_timestamp(date: &str) -> Option<f64> {
-        let date_format = "%Y-%m-%d";
-        Some(NaiveDate::parse_from_str(date, date_format)
+    pub fn get_community_prediction_before(&self, date: NaiveDateTime) -> Option<Prediction> {
+        let mut predictions = self.prediction_timeseries.as_ref()?.clone();
+        predictions.reverse();
+        match predictions
+            .iter()
+            .find(|it| it.timestamp() <= date.timestamp() as f64)?
+        {
+            NumericPTP {
+                community_prediction,
+                ..
+            } => Some(NumP(*community_prediction)),
+            RangePTP {
+                community_prediction,
+                ..
+            } => self.convert_range_prediction(community_prediction.q2),
+        }
+    }
+
+    ///
+    /// Returns the Metaculus prediction sa it was on the given `date`, if it existed.
+    ///
+    pub fn get_metaculus_prediction_before(&self, date: NaiveDateTime) -> Option<Prediction> {
+        let mut metaculus_predictions = self.metaculus_prediction.as_ref()?.history.clone();
+        metaculus_predictions.reverse();
+        match metaculus_predictions
+            .iter()
+            .find(|it| it.timestamp() <= date.timestamp() as f64)?
+        {
+            NumericMPTP { x, .. } => Some(NumP(*x)),
+            RangeMPTP { x, .. } => self.convert_range_prediction(x.q2),
+        }
+    }
+
+    fn get_resolution_before(&self, date: NaiveDateTime) -> Option<Prediction> {
+        if NaiveDateTime::parse_from_str(&*self.resolve_time.as_ref()?, "%Y-%m-%dT%H:%M:%SZ")
             .ok()?
-            .and_hms(0, 0, 0)
-            .timestamp() as f64)
+            <= date
+        {
+            self.get_resolution()
+        } else {
+            None
+        }
     }
 }
 
@@ -256,6 +283,10 @@ pub enum Prediction {
 }
 
 impl Prediction {
+    ///
+    /// Returns the value of the prediction if it is a numerical question (either continuous or
+    /// binary), and `None` otherwise.
+    ///
     pub fn get_if_numeric(&self) -> Option<f64> {
         match self {
             NumP(p) => Some(*p),
@@ -263,6 +294,7 @@ impl Prediction {
         }
     }
 
+    /// Returns the value of the prediction if it is a date question, and `None` otherwise.
     pub fn get_if_date(&self) -> Option<NaiveDateTime> {
         match self {
             DatP(p) => Some(*p),
@@ -271,27 +303,52 @@ impl Prediction {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(untagged)]
 enum PredictionTimeseriesPoint {
     NumericPTP {
+        t: f64,
         community_prediction: f64,
     },
     RangePTP {
+        t: f64,
         community_prediction: RangeCommunityPrediction,
     },
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+impl PredictionTimeseriesPoint {
+    fn timestamp(&self) -> f64 {
+        match self {
+            NumericPTP { t, .. } => *t,
+            RangePTP { t, .. } => *t,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 struct RangeCommunityPrediction {
     q2: f64,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
+struct MetaculusPrediction {
+    history: Vec<MetaculusPredictionTimeseriesPoint>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 enum MetaculusPredictionTimeseriesPoint {
-    NumericMPTP { full: f64 },
-    RangeMPTP { full: RangeMetaculusPrediction },
+    NumericMPTP { t: f64, x: f64 },
+    RangeMPTP { t: f64, x: RangeMetaculusPrediction },
+}
+
+impl MetaculusPredictionTimeseriesPoint {
+    fn timestamp(&self) -> f64 {
+        match self {
+            NumericMPTP { t, .. } => *t,
+            RangeMPTP { t, .. } => *t,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -304,7 +361,7 @@ struct QuestionPossibilities {
     #[serde(rename = "type")]
     question_type: String,
     scale: Option<RangeQuestionScale>,
-    format: Option<String>
+    format: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]

@@ -23,7 +23,7 @@ fn test_binary_index() {
             WeightedQuestion::create_from_binary(&question_1, 1.0).unwrap(),
             WeightedQuestion::create_from_binary(&question_1, 0.5).unwrap(),
             WeightedQuestion::create_from_binary(&question_2, 2.0).unwrap(),
-        ]
+        ],
     };
 
     assert_eq!(index.get_index_value(), 2.3);
@@ -40,7 +40,7 @@ fn test_continuous_index() {
             WeightedQuestion::create_from_binary(&question_1, 2.0).unwrap(),
             WeightedQuestion::create_from_range(&question_2, 10.0).unwrap(),
             WeightedQuestion::create_from_range(&question_3, 0.1).unwrap(),
-        ]
+        ],
     };
 
     assert_eq!(index.questions[0].get_value(), 2.0);

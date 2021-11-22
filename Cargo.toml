@@ -1,6 +1,6 @@
 [package]
 name = "metaculustetra"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["holomanga <holomanga@gmail.com>"]
 edition = "2021"
 description = "A library for interacting with the Metaculus API"
