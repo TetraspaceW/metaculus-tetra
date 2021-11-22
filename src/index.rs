@@ -6,7 +6,7 @@
 
 use crate::date_utils::DateUtils;
 use crate::RangeQuestionScale::{DateRangeQuestionScale, NumericRangeQuestionScale};
-use crate::{AmbP, DatP, NumP, Question};
+use crate::{AmbP, DatP, Metaculus, NumP, Question};
 use chrono::NaiveDateTime;
 
 ///
@@ -136,10 +136,46 @@ impl WeightedQuestion {
                         (p - self.zero) * self.weight
                     }
                 }
-                DatP(_) => {
-                    todo!("Only numeric predictions are currently supported in indices.")
+                DatP(p) => {
+                    if self.linearise_if_log && self.question.is_logarithmic() {
+                        (p.timestamp() as f64 / self.zero).ln() * self.weight
+                    } else {
+                        (p.timestamp() as f64 - self.zero) * self.weight
+                    }
                 }
             },
         }
+    }
+}
+
+pub trait MetaculusIndexCreator {
+    fn create_index_from_questions(&self, ids: Vec<String>, weights: Vec<f64>) -> Index;
+}
+
+impl MetaculusIndexCreator for Metaculus<'_> {
+    ///
+    /// Creates an [Index] from a list of question `ids`, each of which have the given weight,
+    /// ignoring questions which cannot be received or parsed successfully.
+    ///
+    fn create_index_from_questions(&self, ids: Vec<String>, weights: Vec<f64>) -> Index {
+        let questions = ids
+            .iter()
+            .map(|id| self.get_question(id))
+            .zip(weights)
+            .map(|pair| {
+                let q = pair.0?;
+                let weight = pair.1;
+                Some(
+                    WeightedQuestion::create_from_binary(&q, weight).unwrap_or(
+                        WeightedQuestion::create_from_range(&q, weight)
+                            .unwrap_or(WeightedQuestion::create_from_date(&q, weight)?),
+                    ),
+                )
+            })
+            .filter(|wq| wq.is_some())
+            .map(|wq| wq.unwrap())
+            .collect();
+
+        Index { questions }
     }
 }
