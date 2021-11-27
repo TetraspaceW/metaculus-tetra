@@ -13,9 +13,7 @@ use crate::PredictionTimeseriesPoint::{NumericPTP, RangePTP};
 use crate::RangeQuestionScale::{DateRangeQuestionScale, NumericRangeQuestionScale};
 use chrono::NaiveDateTime;
 use log::info;
-use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
-use serde_json;
 
 ///
 /// An API client for retrieving Metaculus question data. Contains the domain (e.g. `www`,
@@ -25,19 +23,17 @@ use serde_json;
 ///
 /// ``` rust
 /// use metaculustetra::Metaculus;
-/// use reqwest::blocking::Client;
 /// // Standard Metaculus client, accesses <https://www.metaculus.com>
 /// let m = Metaculus::standard();
 /// // Pandemic Metaculus client, accesses <https://pandemic.metaculus.com>
-/// let mp = Metaculus { domain: "pandemic", client: Client::new() };
+/// let mp = Metaculus { domain: "pandemic" };
 /// ```
 pub struct Metaculus<'a> {
     ///
     /// The Metaculus [domain](https://www.metaculus.com/news/2019/08/04/introducing-the-domain-system/)
     /// to retrieve questions from, such as `www` (Metaculus Prime), `pandemic`, or `ai`
     ///
-    pub domain: &'a str,
-    pub client: Client,
+    pub domain: &'a str
 }
 
 impl Metaculus<'_> {
@@ -47,8 +43,7 @@ impl Metaculus<'_> {
     ///
     pub fn standard() -> Metaculus<'static> {
         Metaculus {
-            domain: "www",
-            client: Client::new(),
+            domain: "www"
         }
     }
 
@@ -85,11 +80,10 @@ impl Metaculus<'_> {
             "https://{}.metaculus.com/api2/questions/{}",
             self.domain, id
         );
-        let response = self.client.get(url).send().ok()?.text().ok()?;
-        let question_response = serde_json::from_str(&response).ok()?;
+        let response = ureq::get(&*url).call().ok()?.into_json().ok()?;
         info!("Question id {} retrieved successfully.", id);
 
-        return Some(question_response);
+        return Some(response);
     }
 }
 
