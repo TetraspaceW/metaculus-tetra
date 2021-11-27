@@ -149,7 +149,7 @@ impl WeightedQuestion {
 }
 
 pub trait MetaculusIndexCreator {
-    fn create_index_from_questions(&self, ids: Vec<String>, weights: Vec<f64>) -> Index;
+    fn create_index_from_questions(&self, ids: Vec<&str>, weights: Vec<f64>) -> Index;
 }
 
 impl MetaculusIndexCreator for Metaculus<'_> {
@@ -157,13 +157,11 @@ impl MetaculusIndexCreator for Metaculus<'_> {
     /// Creates an [Index] from a list of question `ids`, each of which have the given weight,
     /// ignoring questions which cannot be received or parsed successfully.
     ///
-    fn create_index_from_questions(&self, ids: Vec<String>, weights: Vec<f64>) -> Index {
-        let questions = ids
-            .iter()
-            .map(|id| self.get_question(id))
+    fn create_index_from_questions(&self, ids: Vec<&str>, weights: Vec<f64>) -> Index {
+        let questions = self.get_questions(ids).iter()
             .zip(weights)
             .map(|pair| {
-                let q = pair.0?;
+                let q = (*pair.0).as_ref()?;
                 let weight = pair.1;
                 Some(
                     WeightedQuestion::create_from_binary(&q, weight).unwrap_or(
@@ -172,8 +170,7 @@ impl MetaculusIndexCreator for Metaculus<'_> {
                     ),
                 )
             })
-            .filter(|wq| wq.is_some())
-            .map(|wq| wq.unwrap())
+            .filter_map(|wq| wq )
             .collect();
 
         Index { questions }

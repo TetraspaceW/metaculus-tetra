@@ -13,9 +13,13 @@ use crate::PredictionTimeseriesPoint::{NumericPTP, RangePTP};
 use crate::RangeQuestionScale::{DateRangeQuestionScale, NumericRangeQuestionScale};
 use chrono::NaiveDateTime;
 use log::info;
-use reqwest::blocking::Client;
+use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use futures::executor::block_on;
+
+use futures::stream::iter;
+use futures::StreamExt;
 
 ///
 /// An API client for retrieving Metaculus question data. Contains the domain (e.g. `www`,
@@ -25,7 +29,7 @@ use serde_json;
 ///
 /// ``` rust
 /// use metaculustetra::Metaculus;
-/// use reqwest::blocking::Client;
+/// use reqwest::Client;
 /// // Standard Metaculus client, accesses <https://www.metaculus.com>
 /// let m = Metaculus::standard();
 /// // Pandemic Metaculus client, accesses <https://pandemic.metaculus.com>
@@ -81,15 +85,33 @@ impl Metaculus<'_> {
     /// Returns the question with id `id` as a [Question] if it exists.
     ///
     pub fn get_question(&self, id: &str) -> Option<Question> {
+        self.get_question_async(id)
+    }
+
+    ///
+    /// Returns the questions with ids in `ids` as a vector of [Question]s.
+    ///
+    pub fn get_questions(&self, ids: Vec<&str>) -> Vec<Option<Question>> {
+        block_on(self.get_questions_async(ids))
+    }
+
+    #[tokio::main]
+    async fn get_question_async(&self, id: &str) -> Option<Question> {
         let url = format!(
             "https://{}.metaculus.com/api2/questions/{}",
             self.domain, id
         );
-        let response = self.client.get(url).send().ok()?.text().ok()?;
+        let response = self.client.get(url).send().await.ok()?.text().await.ok()?;
         let question_response = serde_json::from_str(&response).ok()?;
         info!("Question id {} retrieved successfully.", id);
 
         return Some(question_response);
+    }
+
+    async fn get_questions_async(&self, ids: Vec<&str>) -> Vec<Option<Question>> {
+        iter(ids.iter()).then( |id| async {
+            self.get_question_async(id)
+        }).collect().await
     }
 }
 
