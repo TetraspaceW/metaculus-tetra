@@ -89,15 +89,20 @@ fn test_date_range_question() {
 
     let start_date = NaiveDate::parse_from_str("2021-01-15", "%Y-%m-%d")
         .unwrap()
-        .and_hms(0, 0, 0)
+        .and_hms_opt(0, 0, 0)
+        .unwrap()
         .timestamp() as f64;
     let end_date = NaiveDate::parse_from_str("2025-01-01", "%Y-%m-%d")
         .unwrap()
-        .and_hms(0, 0, 0)
+        .and_hms_opt(0, 0, 0)
+        .unwrap()
         .timestamp() as f64;
 
-    let community_date =
-        NaiveDateTime::from_timestamp((0.27891 * (end_date - start_date) + start_date) as i64, 0);
+    let community_date = NaiveDateTime::from_timestamp_opt(
+        (0.27891 * (end_date - start_date) + start_date) as i64,
+        0,
+    )
+    .unwrap();
 
     assert_eq!(
         question.get_best_prediction().unwrap(),
@@ -177,7 +182,12 @@ fn test_unrevealed_question() {
 #[test]
 fn test_get_if() {
     let ambiguous_prediction = AmbP;
-    let date_prediction = DatP(NaiveDate::from_ymd(1954, 03, 02).and_hms(0, 0, 0));
+    let date_prediction = DatP(
+        NaiveDate::from_ymd_opt(1954, 03, 02)
+            .unwrap()
+            .and_hms_opt(0, 0, 0)
+            .unwrap(),
+    );
     let numerical_prediction = NumP(42.0);
 
     assert_eq!(ambiguous_prediction.get_if_numeric(), None);
@@ -186,7 +196,12 @@ fn test_get_if() {
     assert_eq!(date_prediction.get_if_numeric(), None);
     assert_eq!(
         date_prediction.get_if_date(),
-        Some(NaiveDate::from_ymd(1954, 03, 02).and_hms(0, 0, 0))
+        Some(
+            NaiveDate::from_ymd_opt(1954, 03, 02)
+                .unwrap()
+                .and_hms_opt(0, 0, 0)
+                .unwrap()
+        )
     );
 
     assert_eq!(numerical_prediction.get_if_numeric(), Some(42.0));
@@ -197,24 +212,44 @@ fn test_get_if() {
 fn test_get_community_prediction_before() {
     let question = read_q_from_file("probability_example");
     assert_eq!(
-        question.get_community_prediction_before(NaiveDate::from_ymd(1945, 1, 1).and_hms(0, 0, 0)),
+        question.get_community_prediction_before(
+            NaiveDate::from_ymd_opt(1945, 1, 1)
+                .unwrap()
+                .and_hms_opt(0, 0, 0)
+                .unwrap()
+        ),
         None
     );
     assert_eq!(
         question
-            .get_community_prediction_before(NaiveDate::from_ymd(2018, 10, 12).and_hms(0, 0, 0))
+            .get_community_prediction_before(
+                NaiveDate::from_ymd_opt(2018, 10, 12)
+                    .unwrap()
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap()
+            )
             .unwrap(),
         NumP(0.2)
     );
     assert_eq!(
         question
-            .get_community_prediction_before(NaiveDate::from_ymd(2019, 3, 6).and_hms(0, 0, 0))
+            .get_community_prediction_before(
+                NaiveDate::from_ymd_opt(2019, 3, 6)
+                    .unwrap()
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap()
+            )
             .unwrap(),
         NumP(0.38)
     );
     assert_eq!(
         question
-            .get_community_prediction_before(NaiveDate::from_ymd(2100, 1, 1).and_hms(0, 0, 0))
+            .get_community_prediction_before(
+                NaiveDate::from_ymd_opt(2100, 1, 1)
+                    .unwrap()
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap()
+            )
             .unwrap(),
         NumP(0.2)
     );

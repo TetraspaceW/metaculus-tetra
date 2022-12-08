@@ -33,7 +33,7 @@ pub struct Metaculus<'a> {
     /// The Metaculus [domain](https://www.metaculus.com/news/2019/08/04/introducing-the-domain-system/)
     /// to retrieve questions from, such as `www` (Metaculus Prime), `pandemic`, or `ai`
     ///
-    pub domain: &'a str
+    pub domain: &'a str,
 }
 
 impl Metaculus<'_> {
@@ -42,9 +42,7 @@ impl Metaculus<'_> {
     /// with a newly created [reqwest::blocking::Client] instance.
     ///
     pub fn standard() -> Metaculus<'static> {
-        Metaculus {
-            domain: "www"
-        }
+        Metaculus { domain: "www" }
     }
 
     ///
@@ -171,10 +169,10 @@ impl Question {
             DateRangeQuestionScale { min, max, .. } => {
                 let min_ts = NaiveDateTime::date_to_timestamp(min)?;
                 let max_ts = NaiveDateTime::date_to_timestamp(max)?;
-                Some(DatP(NaiveDateTime::from_timestamp(
+                Some(DatP(NaiveDateTime::from_timestamp_opt(
                     self.scale_range_prediction(prediction, min_ts, max_ts) as i64,
                     0,
-                )))
+                )?))
             }
         }
     }

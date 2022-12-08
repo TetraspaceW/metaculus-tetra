@@ -20,7 +20,7 @@ impl DateUtils for NaiveDateTime {
         Some(
             NaiveDate::parse_from_str(date, date_format)
                 .ok()?
-                .and_hms(0, 0, 0)
+                .and_hms_opt(0, 0, 0)?
                 .timestamp() as f64,
         )
     }
