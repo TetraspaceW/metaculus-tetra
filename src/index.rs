@@ -162,7 +162,7 @@ impl MetaculusIndexCreator for Metaculus<'_> {
             .iter()
             .map(|id| self.get_question(id))
             .zip(weights)
-            .map(|pair| {
+            .filter_map(|pair| {
                 let q = pair.0?;
                 let weight = pair.1;
                 Some(
@@ -172,8 +172,6 @@ impl MetaculusIndexCreator for Metaculus<'_> {
                     ),
                 )
             })
-            .filter(|wq| wq.is_some())
-            .map(|wq| wq.unwrap())
             .collect();
 
         Index { questions }

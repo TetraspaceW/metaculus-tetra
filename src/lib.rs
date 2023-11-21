@@ -78,10 +78,10 @@ impl Metaculus<'_> {
             "https://{}.metaculus.com/api2/questions/{}",
             self.domain, id
         );
-        let response = ureq::get(&*url).call().ok()?.into_json().ok()?;
+        let response = ureq::get(&url).call().ok()?.into_json().ok()?;
         info!("Question id {} retrieved successfully.", id);
 
-        return Some(response);
+        Some(response)
     }
 }
 
@@ -136,13 +136,13 @@ impl Question {
     /// as a [Prediction], if the question has any predictions from before that date.
     ///
     pub fn get_best_prediction_before(&self, date: NaiveDateTime) -> Option<Prediction> {
-        return match self.get_resolution_before(date) {
+        match self.get_resolution_before(date) {
             None => match self.get_metaculus_prediction_before(date) {
                 None => self.get_community_prediction_before(date),
                 mp => mp,
             },
             r => r,
-        };
+        }
     }
 
     ///
@@ -178,11 +178,11 @@ impl Question {
     }
 
     fn scale_range_prediction(&self, prediction: f64, min: f64, max: f64) -> f64 {
-        return if self.is_logarithmic() {
+        if self.is_logarithmic() {
             (max / min).powf(prediction) * min
         } else {
             prediction * (max - min) + min
-        };
+        }
     }
 
     ///
@@ -190,27 +190,27 @@ impl Question {
     /// question has resolved ambiguously.
     ///
     pub fn get_resolution(&self) -> Option<Prediction> {
-        return if self.resolution? == -1.0 {
+        if self.resolution? == -1.0 {
             Some(AmbP)
         } else if self.possibilities.question_type == "continuous" {
             Some(self.convert_range_prediction(self.resolution?)?)
         } else {
             Some(NumP(self.resolution?))
-        };
+        }
     }
 
     /// Returns `true` iff the question is continuous and has a logarithmic scale.
     pub fn is_logarithmic(&self) -> bool {
         match self.possibilities.scale {
-            Some(NumericRangeQuestionScale { deriv_ratio, .. }) => deriv_ratio != 1.0 as f64,
-            Some(DateRangeQuestionScale { deriv_ratio, .. }) => deriv_ratio != 1.0 as f64,
+            Some(NumericRangeQuestionScale { deriv_ratio, .. }) => deriv_ratio != 1.0_f64,
+            Some(DateRangeQuestionScale { deriv_ratio, .. }) => deriv_ratio != 1.0_f64,
             None => false,
         }
     }
 
     /// Returns `true` iff the question is a binary probability question.
     pub fn is_binary(&self) -> bool {
-        self.possibilities.question_type == String::from("binary")
+        self.possibilities.question_type == *"binary"
     }
 
     ///
@@ -250,7 +250,7 @@ impl Question {
     }
 
     fn get_resolution_before(&self, date: NaiveDateTime) -> Option<Prediction> {
-        if NaiveDateTime::parse_from_str(&*self.resolve_time.as_ref()?, "%Y-%m-%dT%H:%M:%SZ")
+        if NaiveDateTime::parse_from_str(self.resolve_time.as_ref()?, "%Y-%m-%dT%H:%M:%SZ")
             .ok()?
             <= date
         {
