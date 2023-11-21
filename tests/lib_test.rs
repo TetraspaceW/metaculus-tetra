@@ -120,17 +120,20 @@ fn test_logarithmic_date_range_question() {
 
     let start_date = NaiveDate::parse_from_str("2020-03-27", "%Y-%m-%d")
         .unwrap()
-        .and_hms(0, 0, 0)
+        .and_hms_opt(0, 0, 0)
+        .unwrap()
         .timestamp() as f64;
     let end_date = NaiveDate::parse_from_str("2200-01-04", "%Y-%m-%d")
         .unwrap()
-        .and_hms(0, 0, 0)
+        .and_hms_opt(0, 0, 0)
+        .unwrap()
         .timestamp() as f64;
 
-    let community_date = NaiveDateTime::from_timestamp(
+    let community_date = NaiveDateTime::from_timestamp_opt(
         ((end_date / start_date).powf(0.70277) * start_date) as i64,
         0,
-    );
+    )
+    .unwrap();
 
     assert_eq!(
         question.get_best_prediction().unwrap(),

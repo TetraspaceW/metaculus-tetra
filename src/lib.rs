@@ -235,7 +235,7 @@ impl Question {
     }
 
     ///
-    /// Returns the Metaculus prediction sa it was on the given `date`, if it existed.
+    /// Returns the Metaculus prediction as it was on the given `date`, if it existed.
     ///
     pub fn get_metaculus_prediction_before(&self, date: NaiveDateTime) -> Option<Prediction> {
         let mut metaculus_predictions = self.metaculus_prediction.as_ref()?.history.clone();
