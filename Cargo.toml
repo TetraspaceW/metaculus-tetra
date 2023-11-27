@@ -5,8 +5,8 @@ authors = ["TetraspaceW <tetraspace.west@protonmail.com>"]
 edition = "2021"
 description = "A library for interacting with the Metaculus API"
 license = "CC0-1.0"
-homepage = "https://codeberg.org/TetraspaceW/metaculus-tetra"
-repository = "https://codeberg.org/TetraspaceW/metaculus-tetra"
+homepage = "https://github.com/TetraspaceW/metaculus-tetra/"
+repository = "https://github.com/TetraspaceW/metaculus-tetra/"
 include = ["src/**/*", "README.md"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
