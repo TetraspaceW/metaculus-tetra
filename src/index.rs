@@ -125,10 +125,13 @@ impl WeightedQuestion {
     /// to its index.
     ///
     pub fn get_value_before(&self, date: NaiveDateTime) -> f64 {
+        if self.question.get_resolution() == Some(AmbP) {
+            return 0.0;
+        }
+
         match self.question.get_best_prediction_before(date) {
             None => 0.0,
             Some(p) => match p {
-                AmbP => 0.0,
                 NumP(p) => {
                     if self.linearise_if_log && self.question.is_logarithmic() {
                         (p / self.zero).ln() * self.weight
@@ -143,6 +146,7 @@ impl WeightedQuestion {
                         (p.timestamp() as f64 - self.zero) * self.weight
                     }
                 }
+                _ => 0.0,
             },
         }
     }
@@ -165,12 +169,10 @@ impl MetaculusIndexCreator for Metaculus<'_> {
             .filter_map(|pair| {
                 let q = pair.0?;
                 let weight = pair.1;
-                Some(
-                    WeightedQuestion::create_from_binary(&q, weight).unwrap_or(
-                        WeightedQuestion::create_from_range(&q, weight)
-                            .unwrap_or(WeightedQuestion::create_from_date(&q, weight)?),
-                    ),
-                )
+
+                WeightedQuestion::create_from_binary(&q, weight)
+                    .or_else(|| WeightedQuestion::create_from_range(&q, weight))
+                    .or_else(|| WeightedQuestion::create_from_date(&q, weight))
             })
             .collect();
 
