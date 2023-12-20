@@ -136,13 +136,9 @@ impl Question {
     /// as a [Prediction], if the question has any predictions from before that date.
     ///
     pub fn get_best_prediction_before(&self, date: NaiveDateTime) -> Option<Prediction> {
-        match self.get_resolution_before(date) {
-            None => match self.get_metaculus_prediction_before(date) {
-                None => self.get_community_prediction_before(date),
-                mp => mp,
-            },
-            r => r,
-        }
+        self.get_resolution_before(date)
+            .or_else(|| self.get_metaculus_prediction_before(date))
+            .or_else(|| self.get_community_prediction_before(date))
     }
 
     ///
@@ -217,10 +213,10 @@ impl Question {
     /// Returns the community median prediction sa it was on the given `date`, if it existed.
     ///
     pub fn get_community_prediction_before(&self, date: NaiveDateTime) -> Option<Prediction> {
-        let mut predictions = self.prediction_timeseries.as_ref()?.clone();
-        predictions.reverse();
+        let predictions = self.prediction_timeseries.as_ref()?;
         match predictions
             .iter()
+            .rev()
             .find(|it| it.timestamp() <= date.timestamp() as f64)?
         {
             NumericPTP {
@@ -250,8 +246,7 @@ impl Question {
     }
 
     fn get_resolution_before(&self, date: NaiveDateTime) -> Option<Prediction> {
-        if NaiveDateTime::parse_from_str(self.resolve_time.as_ref()?, "%Y-%m-%dT%H:%M:%SZ")
-            .ok()?
+        if NaiveDateTime::parse_from_str(self.resolve_time.as_ref()?, "%Y-%m-%dT%H:%M:%SZ").ok()?
             <= date
         {
             self.get_resolution()
